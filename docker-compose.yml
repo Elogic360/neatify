@@ -1,0 +1,154 @@
+# ============================================================================
+# DOCKER COMPOSE CONFIGURATION
+# ShopHub E-Commerce Platform
+# ============================================================================
+# Usage:
+#   Development: docker compose up -d
+#   Production:  docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+# ============================================================================
+
+services:
+  # ==========================================================================
+  # PostgreSQL Database
+  # ==========================================================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: shophub_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-ecommerce_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-your_secure_password}
+      POSTGRES_DB: ${DB_NAME:-ecommerce}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init_database.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-ecommerce_user} -d ${DB_NAME:-ecommerce}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - shophub_network
+
+  # ==========================================================================
+  # Redis Cache (Optional)
+  # ==========================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: shophub_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - shophub_network
+    profiles:
+      - with-redis
+
+  # ==========================================================================
+  # FastAPI Backend
+  # ==========================================================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: shophub_backend
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=postgresql://${DB_USER:-ecommerce_user}:${DB_PASSWORD:-your_secure_password}@postgres:5432/${DB_NAME:-ecommerce}
+      - SECRET_KEY=${SECRET_KEY:-change_this_secret_key}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:5173,http://localhost:3000}
+      - DEBUG=${DEBUG:-True}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - REDIS_URL=redis://redis:6379/0
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - ./backend/uploads:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - shophub_network
+    profiles:
+      - full
+
+  # ==========================================================================
+  # React Frontend
+  # ==========================================================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: development
+    container_name: shophub_frontend
+    restart: unless-stopped
+    environment:
+      - VITE_API_URL=http://localhost:8000/api/v1
+      - VITE_APP_ENV=development
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - shophub_network
+    profiles:
+      - full
+
+  # ==========================================================================
+  # Nginx Reverse Proxy (Production)
+  # ==========================================================================
+  nginx:
+    image: nginx:alpine
+    container_name: shophub_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./frontend/dist:/usr/share/nginx/html:ro
+    depends_on:
+      - backend
+    networks:
+      - shophub_network
+    profiles:
+      - production
+
+# ==========================================================================
+# Networks
+# ==========================================================================
+networks:
+  shophub_network:
+    driver: bridge
+    name: shophub_network
+
+# ==========================================================================
+# Volumes
+# ==========================================================================
+volumes:
+  postgres_data:
+    name: shophub_postgres_data
+  redis_data:
+    name: shophub_redis_data

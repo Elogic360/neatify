@@ -1,0 +1,70 @@
+# ============================================================================
+# DOCKER IGNORE FILE
+# ShopHub E-Commerce Platform
+# ============================================================================
+
+# Git
+.git
+.gitignore
+
+# Documentation
+*.md
+!README.md
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Testing
+.pytest_cache/
+htmlcov/
+.coverage
+*.cover
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+logs/
+
+# Node modules (for frontend builds)
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local development files
+docker-compose.override.yml
+docker-compose.local.yml
+
+# Test files
+test_*.py
+*_test.py
+tests/
+
+# Debug files
+debug_log.md
+output.txt
+response.json

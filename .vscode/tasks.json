@@ -1,0 +1,272 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Run Backend Server",
+			"type": "shell",
+			"command": "cd backend && uvicorn app.main:app --reload",
+			"isBackground": true
+		},
+		{
+			"label": "Run Backend Server",
+			"type": "shell",
+			"command": "cd backend && uvicorn app.main:app --reload",
+			"isBackground": true
+		},
+		{
+			"label": "Run Backend Server",
+			"type": "shell",
+			"command": "cd backend && uvicorn app.main:app --reload",
+			"isBackground": true
+		},
+		{
+			"label": "Build Frontend",
+			"type": "shell",
+			"command": "cd frontend && pnpm run build",
+			"isBackground": false
+		},
+		{
+			"label": "Create Admin User",
+			"type": "shell",
+			"command": "cd backend && python create_admin.py",
+			"isBackground": false
+		},
+		{
+			"label": "Check Alembic Current Revision",
+			"type": "shell",
+			"command": "cd backend && alembic current"
+		},
+		{
+			"label": "Check Alembic History",
+			"type": "shell",
+			"command": "cd backend && alembic history"
+		},
+		{
+			"label": "Apply Alembic Migrations",
+			"type": "shell",
+			"command": "cd backend && alembic upgrade head"
+		},
+		{
+			"label": "Check Database Schema",
+			"type": "shell",
+			"command": "cd backend && python check_db_schema.py"
+		},
+		{
+			"label": "Check Database Schema Full",
+			"type": "shell",
+			"command": "cd backend && python check_db_schema.py 2>&1"
+		},
+		{
+			"label": "Check Admin User and DB Connection",
+			"type": "shell",
+			"command": "cd backend && python check_admin_user.py"
+		},
+		{
+			"label": "Check Admin Password",
+			"type": "shell",
+			"command": "cd backend && python check_admin_password.py"
+		},
+		{
+			"label": "Check Admin Password",
+			"type": "shell",
+			"command": "cd backend && python check_admin_password.py"
+		},
+		{
+			"label": "Verify Admin Password",
+			"type": "shell",
+			"command": "cd backend && python verify_admin_password.py"
+		},
+		{
+			"label": "Verify Admin Password",
+			"type": "shell",
+			"command": "cd backend && python verify_admin_password.py"
+		},
+		{
+			"label": "Verify Admin Password",
+			"type": "shell",
+			"command": "cd backend && python verify_admin_password.py"
+		},
+		{
+			"label": "Test Password Hashing",
+			"type": "shell",
+			"command": "cd backend && python test_password_hashing.py"
+		},
+		{
+			"label": "Test Password Hashing",
+			"type": "shell",
+			"command": "cd backend && python test_password_hashing.py"
+		},
+		{
+			"label": "Test Passlib Verify",
+			"type": "shell",
+			"command": "cd backend && python test_passlib_verify.py"
+		},
+		{
+			"label": "Test Bcrypt",
+			"type": "shell",
+			"command": "cd backend && python test_bcrypt.py"
+		},
+		{
+			"label": "Test Hash",
+			"type": "shell",
+			"command": "cd backend && python test_hash.py"
+		},
+		{
+			"label": "Test Security",
+			"type": "shell",
+			"command": "cd backend && python test_security.py"
+		},
+		{
+			"label": "Reset Admin Password",
+			"type": "shell",
+			"command": "cd backend && python reset_admin_password.py"
+		},
+		{
+			"label": "Test Admin Password Verification",
+			"type": "shell",
+			"command": "cd backend && python test_admin_password_verification.py",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": ""
+		},
+		{
+			"label": "Stamp Alembic to Head",
+			"type": "shell",
+			"command": "cd backend && alembic stamp head"
+		},
+		{
+			"label": "Test Admin Bcrypt Verification",
+			"type": "shell",
+			"command": "cd backend && python test_admin_bcrypt_verification.py"
+		},
+		{
+			"label": "Check DB and Admin Credentials",
+			"type": "shell",
+			"command": "cd backend && python check_db_and_admin_credentials.py"
+		},
+		{
+			"label": "Test Login Form",
+			"type": "shell",
+			"command": "cd backend && python test_login_form.py",
+			"isBackground": false
+		},
+		{
+			"label": "Test Image URL",
+			"type": "shell",
+			"command": "cd backend && python test_image_url.py"
+		},
+		{
+			"label": "Test Admin Product Creation",
+			"type": "shell",
+			"command": "cd backend && python test_admin_product_creation.py"
+		},
+		{
+			"label": "Check Git Status",
+			"type": "shell",
+			"command": "git status"
+		},
+		{
+			"label": "Fix Database Schema",
+			"type": "shell",
+			"command": "cd backend && python fix_db_schema.py",
+			"isBackground": false
+		},
+		{
+			"label": "Check Database Schema Full Verification",
+			"type": "shell",
+			"command": "cd backend && python check_db_schema_full.py",
+			"isBackground": false
+		},
+		{
+			"label": "Check Schema Full Report",
+			"type": "shell",
+			"command": "cd backend && python check_db_schema_full.py > schema_report.txt 2>&1; cat schema_report.txt",
+			"isBackground": false
+		},
+		{
+			"label": "Verify Schema After Migration",
+			"type": "shell",
+			"command": "cd backend && python check_db_schema_full.py > schema_report_after.txt 2>&1; tail -50 schema_report_after.txt",
+			"isBackground": false
+		},
+		{
+			"label": "Check Products Table Schema",
+			"type": "shell",
+			"command": "cd backend && python -c \"from sqlalchemy import inspect; from app.db.session import engine; inspector = inspect(engine); cols = [c['name'] for c in inspector.get_columns('products')]; print('Products table columns:'); print('\\n'.join(sorted(cols))); print(f'\\n✅ stock column exists: {\"stock\" in cols}')\"",
+			"isBackground": false
+		},
+		{
+			"label": "Check Stock Column",
+			"type": "shell",
+			"command": "cd backend && python check_stock_column.py 2>&1",
+			"isBackground": false
+		},
+		{
+			"label": "Check All Products Stock",
+			"type": "shell",
+			"command": "cd backend && python -c \"\nfrom sqlalchemy import text\nfrom app.db.session import engine\n\nwith engine.connect() as conn:\n    result = conn.execute(text('SELECT id, name, stock, is_active FROM products ORDER BY id'))\n    print('ID | Stock | Active | Name')\n    print('-' * 50)\n    for row in result:\n        status = 'OUT OF STOCK' if row.stock == 0 else f'{row.stock} available'\n        active = 'Y' if row.is_active else 'N'\n        print(f'{row.id:2} | {status:15} | {active:6} | {row.name[:25]}')\n\"",
+			"isBackground": false
+		},
+		{
+			"label": "Test API Products Response",
+			"type": "shell",
+			"command": "curl -s http://localhost:8000/api/v1/products?limit=3 | python3 -c \"import sys, json; data=json.load(sys.stdin); print('Product Stock from API:'); [print(f'  ID {p.get(\\\"id\\\")}: stock={p.get(\\\"stock\\\", \\\"MISSING\\\")}') for p in data.get('items', data)[:5]]\"",
+			"isBackground": false
+		},
+		{
+			"label": "Check Product Stock Values",
+			"type": "shell",
+			"command": "cd backend && python -c \"from sqlalchemy import text; from app.db.session import engine; conn = engine.connect(); result = conn.execute(text('SELECT id, name, stock, is_active FROM products ORDER BY id')); print('ID | Stock | Active | Name'); print('-' * 50); [print(f'{r.id:2} | {r.stock:5} | {r.is_active} | {r.name[:30]}') for r in result]; conn.close()\"",
+			"isBackground": false
+		},
+		{
+			"label": "Check Products API Response",
+			"type": "shell",
+			"command": "curl -s 'http://localhost:8000/api/v1/products?limit=5' | python -m json.tool | head -80",
+			"isBackground": false
+		},
+		{
+			"label": "Check Stock in API",
+			"type": "shell",
+			"command": "curl -s 'http://localhost:8000/api/v1/products?limit=5' | python3 -c \"import sys,json; data=json.load(sys.stdin); [print(f'ID:{p[\\\"id\\\"]} stock={p.get(\\\"stock\\\", \\\"MISSING\\\")} name={p[\\\"name\\\"]}') for p in data.get('items', data)]\"",
+			"isBackground": false
+		},
+		{
+			"label": "Verify Stock Field in API",
+			"type": "shell",
+			"command": "sleep 2 && curl -s 'http://localhost:8000/api/v1/products?limit=5' | python3 -c \"import sys,json; data=json.load(sys.stdin); [print(f'ID:{p[\\\"id\\\"]} stock={p.get(\\\"stock\\\", \\\"MISSING\\\")} is_in_stock={p.get(\\\"is_in_stock\\\", \\\"MISSING\\\")} name={p[\\\"name\\\"]}') for p in data.get('items', data)]\"",
+			"isBackground": false
+		},
+		{
+			"label": "Check Alembic Current",
+			"type": "shell",
+			"command": "cd backend && alembic current 2>&1",
+			"isBackground": false
+		},
+		{
+			"label": "Check Schema Status",
+			"type": "shell",
+			"command": "cd backend && python check_db_schema_full.py 2>&1 | grep -A5 'SUMMARY\\|reviews\\|addresses'",
+			"isBackground": false
+		},
+		{
+			"label": "Verify Columns Exist",
+			"type": "shell",
+			"command": "cd backend && python -c \"\nfrom sqlalchemy import inspect, text\nfrom app.db.session import engine\n\ninspector = inspect(engine)\n\nprint('=== REVIEWS TABLE COLUMNS ===')\nfor col in inspector.get_columns('reviews'):\n    print(f'  {col[\\\"name\\\"]:25} {str(col[\\\"type\\\"]):20}')\n\nprint()\nprint('=== ADDRESSES TABLE COLUMNS ===')\nfor col in inspector.get_columns('addresses'):\n    print(f'  {col[\\\"name\\\"]:25} {str(col[\\\"type\\\"]):20}')\n\" 2>&1 | tail -30",
+			"isBackground": false
+		},
+		{
+			"label": "List All Columns",
+			"type": "shell",
+			"command": "cd backend && python -c \"from sqlalchemy import inspect; from app.db.session import engine; i=inspect(engine); print('REVIEWS:'); [print(f'  {c[\\\"name\\\"]}') for c in i.get_columns('reviews')]; print(); print('ADDRESSES:'); [print(f'  {c[\\\"name\\\"]}') for c in i.get_columns('addresses')]\" 2>&1 | tail -25",
+			"isBackground": false
+		},
+		{
+			"label": "Reviews Columns",
+			"type": "shell",
+			"command": "cd backend && python -c \"from sqlalchemy import inspect; from app.db.session import engine; i=inspect(engine); cols=[c['name'] for c in i.get_columns('reviews')]; print('REVIEWS columns:', cols)\" 2>&1",
+			"isBackground": false
+		}
+	]
+}

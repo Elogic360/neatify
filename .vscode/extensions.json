@@ -1,0 +1,47 @@
+{
+  // ============================================================================
+  // VS CODE RECOMMENDED EXTENSIONS
+  // ShopHub E-Commerce Platform
+  // ============================================================================
+  "recommendations": [
+    // Python
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+
+    // React
+    "dsznajder.es7-react-js-snippets",
+    "burkeholland.simple-react-snippets",
+
+    // Tailwind CSS
+    "bradlc.vscode-tailwindcss",
+
+    // Database
+    "ckolkman.vscode-postgres",
+
+    // Docker
+    "ms-azuretools.vscode-docker",
+
+    // Git
+    "eamodio.gitlens",
+    "mhutchie.git-graph",
+
+    // API Development
+    "humao.rest-client",
+    "42Crunch.vscode-openapi",
+
+    // Environment Files
+    "mikestead.dotenv",
+
+    // Utilities
+    "christian-kohler.path-intellisense",
+    "formulahendry.auto-rename-tag",
+    "streetsidesoftware.code-spell-checker",
+    "gruntfuggly.todo-tree",
+    "usernamehw.errorlens",
+
+    // Themes (optional)
+    "PKief.material-icon-theme"
+  ]
+}
