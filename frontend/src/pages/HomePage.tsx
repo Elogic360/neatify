@@ -4,7 +4,6 @@ import {
   ShoppingCart, 
   Search, 
   Star, 
-  TrendingUp, 
   Sparkles, 
   Zap, 
   Package,
