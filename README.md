@@ -462,3 +462,4 @@ For issues and questions, please open an issue on GitHub.
 - [ ] Multi-language support
 - [ ] Mobile app (React Native)
 - [ ] Social media integration
+# ecommerce
