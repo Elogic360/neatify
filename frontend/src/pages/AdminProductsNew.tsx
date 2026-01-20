@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { productsAPI, categoriesAPI, adminProductsAPI, getImageUrl } from '@/app/api';
 import { useToast } from '@/components/admin/Toast';
+import { FileUpload, UploadedFile } from '@/components/admin/FileUpload';
 
 interface Product {
   id: number;
@@ -57,8 +58,7 @@ const AdminProductsNew: React.FC = () => {
     category_ids: [] as number[]
   });
   
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>('');
+  const [productImages, setProductImages] = useState<UploadedFile[]>([]);
 
   useEffect(() => {
     fetchData();
@@ -100,18 +100,6 @@ const AdminProductsNew: React.FC = () => {
     }));
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setSelectedImage(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setUploading(true);
@@ -128,9 +116,15 @@ const AdminProductsNew: React.FC = () => {
       const response = await adminProductsAPI.create(productData);
       const newProduct = response.data;
 
-      // Upload image if selected
-      if (selectedImage && newProduct.id) {
-        await adminProductsAPI.uploadImage(newProduct.id, selectedImage, true);
+      // Upload images if any selected
+      if (productImages.length > 0 && newProduct.id) {
+        for (let i = 0; i < productImages.length; i++) {
+          const imageFile = productImages[i];
+          if (imageFile.file) {
+            const isPrimary = imageFile.isPrimary || i === 0;
+            await adminProductsAPI.uploadImage(newProduct.id, imageFile.file, isPrimary);
+          }
+        }
       }
 
       // Refresh products list
@@ -161,8 +155,7 @@ const AdminProductsNew: React.FC = () => {
       is_featured: false,
       category_ids: []
     });
-    setSelectedImage(null);
-    setImagePreview('');
+    setProductImages([]);
   };
 
   const handleDeleteProduct = async (productId: number) => {
@@ -346,39 +339,22 @@ const AdminProductsNew: React.FC = () => {
 
             {/* Modal Body */}
             <form onSubmit={handleSubmit} className="px-6 py-6 space-y-6 max-h-[70vh] overflow-y-auto">
-              {/* Image Upload */}
+              {/* Image Upload - Multiple Images */}
               <div className="bg-gray-50 p-4 rounded-xl">
                 <label className="block text-sm font-semibold text-gray-700 mb-3">
-                  Product Image
+                  Product Images (Max 10)
                 </label>
-                <div className="flex items-center space-x-4">
-                  <div className="flex-shrink-0">
-                    {imagePreview ? (
-                      <img
-                        src={imagePreview}
-                        alt="Preview"
-                        className="h-32 w-32 object-cover rounded-xl border-2 border-orange-300 shadow-lg"
-                      />
-                    ) : (
-                      <div className="h-32 w-32 bg-white rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center">
-                        <ImageIcon className="h-12 w-12 text-gray-400" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <label className="cursor-pointer inline-flex items-center px-4 py-3 border-2 border-orange-500 rounded-xl shadow-sm text-sm font-semibold text-orange-600 bg-white hover:bg-orange-50 transition">
-                      <Upload className="h-5 w-5 mr-2" />
-                      Choose Image
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                        className="hidden"
-                      />
-                    </label>
-                    <p className="mt-2 text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
-                  </div>
-                </div>
+                <FileUpload
+                  files={productImages}
+                  onFilesChange={setProductImages}
+                  accept="image/*"
+                  maxFiles={10}
+                  maxSize={10 * 1024 * 1024}
+                  multiple={true}
+                  showPrimary={true}
+                  reorderable={true}
+                  compact={false}
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-4">

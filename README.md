@@ -1,32 +1,33 @@
-# ShopHub E-Commerce Platform
+# Neatify E-Commerce Platform
 
-A full-stack e-commerce platform built with FastAPI (Python) backend and React TypeScript frontend, featuring a comprehensive admin system for product management.
+A modern, full-stack e-commerce platform for cleaning supplies, built with FastAPI (Python) backend and React TypeScript frontend.
 
-## Features
+**Location**: BIASHARA COMPLEX, Komakoma  
+**Contact**: 0719 883 695 | 0685 395 844
 
-### User Features
-- 🛍️ Browse products with advanced filtering and search
+## ✨ Features
+
+### Customer Features
+- 🛍️ Browse cleaning supplies with advanced filtering
 - 🛒 Shopping cart management
 - ⭐ Product reviews and ratings
-- 👤 User authentication and profile management
+- 👤 User authentication and profile
 - 📦 Order tracking
-- 🎯 Category-based navigation
+- 🎯 Category-based product navigation
 
 ### Admin Features
-- ➕ Add, edit, and delete products
-- 📸 Multiple image upload per product
+- ➕ Complete product management (Add, Edit, Delete)
+- 📸 Multi-image upload (up to 10 images per product)
 - 🏷️ Category management
-- 📊 Dashboard with statistics and revenue tracking
-- 💰 Price and inventory management with audit logs
-- 🎨 Product variations (colors, sizes, etc.)
+- 📊 Analytics dashboard with revenue tracking
+- 💰 Price and inventory management
 - ✨ Featured products control
-- 👥 User management (view, edit, delete users)
+- 👥 User management
 - 📦 Order management with status updates
 - 📈 Inventory tracking and low stock alerts
 - 🔍 Advanced search and filtering
-- 📋 Comprehensive reporting and analytics
 
-## Tech Stack
+## 🛠️ Tech Stack
 
 ### Backend
 - **FastAPI** - Modern Python web framework
@@ -41,12 +42,13 @@ A full-stack e-commerce platform built with FastAPI (Python) backend and React T
 - **TypeScript** - Type safety
 - **Tailwind CSS** - Styling
 - **Vite** - Build tool
+- **Zustand** - State management
 - **Lucide React** - Icons
 
-## Prerequisites
+## 📋 Prerequisites
 
 - Python 3.11+
-- Node.js 18+
+- Node.js 18+ and pnpm
 - PostgreSQL 14+
 - npm or yarn
 
