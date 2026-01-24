@@ -7,9 +7,7 @@ import {
   DollarSign,
   Tag,
   Star,
-  Upload,
   X,
-  Image as ImageIcon,
   Loader
 } from 'lucide-react';
 import { productsAPI, categoriesAPI, adminProductsAPI, getImageUrl } from '@/app/api';

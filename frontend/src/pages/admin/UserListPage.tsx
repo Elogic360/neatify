@@ -158,16 +158,16 @@ export default function UserListPage() {
             {row.role === 'admin' ? (
               <ShieldCheck className="h-5 w-5 text-purple-400" />
             ) : (
-              <User className="h-5 w-5 text-slate-400" />
+              <User className="h-5 w-5 text-gray-500 dark:text-slate-400" />
             )}
           </div>
           <div>
-            <p className="font-medium text-white">
+            <p className="font-medium text-gray-900 dark:text-white">
               {row.first_name && row.last_name
                 ? `${row.first_name} ${row.last_name}`
                 : value}
             </p>
-            <p className="text-xs text-slate-400">{value}</p>
+            <p className="text-xs text-gray-500 dark:text-slate-400">{value}</p>
           </div>
         </div>
       ),
@@ -182,7 +182,7 @@ export default function UserListPage() {
             'rounded-full px-2 py-0.5 text-xs font-medium capitalize',
             value === 'admin'
               ? 'bg-purple-500/10 text-purple-400'
-              : 'bg-slate-500/10 text-slate-400'
+              : 'bg-slate-500/10 text-gray-500 dark:text-slate-400'
           )}
         >
           {value}
@@ -195,7 +195,7 @@ export default function UserListPage() {
       sortable: true,
       align: 'center',
       render: (value) => (
-        <span className="text-white">{value}</span>
+        <span className="text-gray-900 dark:text-white">{value}</span>
       ),
     },
     {
@@ -204,7 +204,7 @@ export default function UserListPage() {
       sortable: true,
       align: 'right',
       render: (value) => (
-        <span className="font-medium text-white">{formatCurrency(value)}</span>
+        <span className="font-medium text-gray-900 dark:text-white">{formatCurrency(value)}</span>
       ),
     },
     {
@@ -234,7 +234,7 @@ export default function UserListPage() {
       header: 'Joined',
       sortable: true,
       render: (value) => (
-        <div className="flex items-center gap-1 text-sm text-slate-400">
+        <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-slate-400">
           <Calendar className="h-3 w-3" />
           {formatDateTime(value).split(',')[0]}
         </div>
@@ -251,7 +251,7 @@ export default function UserListPage() {
               e.stopPropagation();
               setActionMenu(actionMenu === row.id ? null : row.id);
             }}
-            className="rounded p-1 text-slate-400 hover:bg-slate-700 hover:text-white"
+            className="rounded p-1 text-gray-500 dark:text-slate-400 hover:bg-slate-700 hover:text-gray-900 dark:text-white"
             aria-label="User actions"
           >
             <MoreHorizontal className="h-5 w-5" />
@@ -263,7 +263,7 @@ export default function UserListPage() {
                 className="fixed inset-0 z-10"
                 onClick={() => setActionMenu(null)}
               />
-              <div className="absolute right-0 top-8 z-20 w-48 rounded-lg border border-slate-700 bg-slate-800 py-1 shadow-lg">
+              <div className="absolute right-0 top-8 z-20 w-48 rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 py-1 shadow-lg">
                 <Link
                   to={`/admin/users/${row.id}`}
                   className="flex w-full items-center gap-2 px-4 py-2 text-sm text-slate-300 hover:bg-slate-700"
@@ -278,7 +278,7 @@ export default function UserListPage() {
                   <Edit2 className="h-4 w-4" />
                   Edit
                 </Link>
-                <div className="my-1 border-t border-slate-700" />
+                <div className="my-1 border-t border-gray-200 dark:border-slate-700" />
                 {row.role === 'customer' ? (
                   <button
                     onClick={() => handleRoleChange(row, 'admin')}
@@ -296,7 +296,7 @@ export default function UserListPage() {
                     Remove Admin
                   </button>
                 )}
-                <div className="my-1 border-t border-slate-700" />
+                <div className="my-1 border-t border-gray-200 dark:border-slate-700" />
                 {row.is_active ? (
                   <button
                     onClick={() => handleStatusChange(row, 'deactivate')}
@@ -327,8 +327,8 @@ export default function UserListPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Users</h1>
-          <p className="text-sm text-slate-400">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Users</h1>
+          <p className="text-sm text-gray-500 dark:text-slate-400">
             Manage customers and admin users ({users.total} users)
           </p>
         </div>
@@ -339,7 +339,7 @@ export default function UserListPage() {
           </button>
           <Link
             to="/admin/users/new"
-            className="flex items-center gap-2 rounded-lg bg-emerald-500 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-600"
+            className="flex items-center gap-2 rounded-lg bg-emerald-500 px-4 py-2 text-sm font-medium text-gray-900 dark:text-white hover:bg-emerald-600"
           >
             <UserPlus className="h-4 w-4" />
             Add User

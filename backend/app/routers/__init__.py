@@ -6,6 +6,7 @@ from . import (
     admin,
     orders,
     inventory,
+    inventory_public,
     categories,
     # V1.5 Feature Routers
     wishlist,
@@ -25,6 +26,7 @@ __all__ = [
     "admin",
     "orders",
     "inventory",
+    "inventory_public",
     "categories",
     # V1.5 Feature Routers
     "wishlist",

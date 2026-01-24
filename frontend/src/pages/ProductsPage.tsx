@@ -30,7 +30,7 @@ export default function ProductsPage() {
   // Handle adding product to cart
   const handleAddToCart = (product: ProductSummary) => {
     if (product.stock === 0) return;
-    
+
     // Convert ProductSummary to Product type for cart
     const cartProduct: Product = {
       id: product.id,
@@ -48,7 +48,7 @@ export default function ProductsPage() {
   const { token } = useStore();
   const { items: wishlistItems, addToWishlist, removeFromWishlist, fetchWishlist } = useWishlistStore();
   const wishlistIds = wishlistItems.map(item => item.product_id);
-  
+
   useEffect(() => {
     // Only fetch wishlist if user is logged in
     if (token) {
@@ -261,7 +261,9 @@ export default function ProductsPage() {
             {error && (
               <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400">
                 <p className="font-medium">Error loading products</p>
-                <p className="text-sm mt-1">{error}</p>
+                <p className="text-sm mt-1">
+                  {error instanceof Error ? error.message : (typeof error === 'string' ? error : 'A network error occurred')}
+                </p>
                 <Button
                   variant="secondary"
                   onClick={refresh}

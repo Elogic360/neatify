@@ -14,10 +14,10 @@ export default function Badge({ className, tone, variant, ...props }: Props) {
   const v = variant ?? (tone === 'neutral' ? 'default' : tone) ?? 'default'
 
   const styles: Record<Variant, string> = {
-    default: 'bg-white/10 text-slate-200 border-white/10',
-    success: 'bg-emerald-500/15 text-emerald-200 border-emerald-400/20',
-    warning: 'bg-amber-500/15 text-amber-200 border-amber-400/20',
-    danger: 'bg-rose-500/15 text-rose-200 border-rose-400/20'
+    default: 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-700',
+    success: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border-green-200 dark:border-green-700',
+    warning: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 border-yellow-200 dark:border-yellow-700',
+    danger: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 border-red-200 dark:border-red-700'
   }
 
   return (

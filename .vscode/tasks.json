@@ -8,18 +8,6 @@
 			"isBackground": true
 		},
 		{
-			"label": "Run Backend Server",
-			"type": "shell",
-			"command": "cd backend && uvicorn app.main:app --reload",
-			"isBackground": true
-		},
-		{
-			"label": "Run Backend Server",
-			"type": "shell",
-			"command": "cd backend && uvicorn app.main:app --reload",
-			"isBackground": true
-		},
-		{
 			"label": "Build Frontend",
 			"type": "shell",
 			"command": "cd frontend && pnpm run build",
@@ -267,6 +255,166 @@
 			"type": "shell",
 			"command": "cd backend && python -c \"from sqlalchemy import inspect; from app.db.session import engine; i=inspect(engine); cols=[c['name'] for c in i.get_columns('reviews')]; print('REVIEWS columns:', cols)\" 2>&1",
 			"isBackground": false
+		},
+		{
+			"label": "Test Session Tracking",
+			"type": "shell",
+			"command": "cd backend && python test_session_tracking.py"
+		},
+		{
+			"label": "Check TypeScript Errors",
+			"type": "shell",
+			"command": "cd frontend && npx tsc --noEmit"
+		},
+		{
+			"label": "Install Frontend Dependencies",
+			"type": "shell",
+			"command": "cd frontend && pnpm install"
+		},
+		{
+			"label": "Build Frontend Verbose",
+			"type": "shell",
+			"command": "cd frontend && pnpm run build --verbose"
+		},
+		{
+			"label": "Debug Build Process",
+			"type": "shell",
+			"command": "cd frontend && DEBUG=vite:* pnpm run build 2>&1 | head -50"
+		},
+		{
+			"label": "TypeScript Check Skip Lib",
+			"type": "shell",
+			"command": "cd frontend && npx tsc --noEmit --skipLibCheck"
+		},
+		{
+			"label": "Direct Vite Build",
+			"type": "shell",
+			"command": "cd frontend && npx vite build"
+		},
+		{
+			"label": "Test Dev Server",
+			"type": "shell",
+			"command": "cd frontend && timeout 10s pnpm run dev 2>&1 | head -20"
+		},
+		{
+			"label": "Test Session Tracking Final",
+			"type": "shell",
+			"command": "cd backend && python test_session_tracking.py"
+		},
+		{
+			"label": "Test Dashboard Stats",
+			"type": "shell",
+			"command": "curl -s http://localhost:8000/api/v1/admin/dashboard/stats | python3 -c \"import sys, json; data=json.load(sys.stdin); print('Dashboard Stats:'); print(f'  Total Users: {data.get(\"total_users\", \"MISSING\")}'); print(f'  Total Products: {data.get(\"total_products\", \"MISSING\")}'); print(f'  Total Orders: {data.get(\"total_orders\", \"MISSING\")}'); print(f'  Today Orders: {data.get(\"today_orders\", \"MISSING\")}')\"",
+			"args": [],
+			"isBackground": false,
+			"group": ""
+		},
+		{
+			"label": "Check Dashboard Stats Status",
+			"type": "shell",
+			"command": "curl -I http://localhost:8000/api/v1/admin/dashboard/stats",
+			"args": [],
+			"isBackground": false,
+			"group": ""
+		},
+		{
+			"label": "Check Dashboard Stats GET",
+			"type": "shell",
+			"command": "curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8000/api/v1/admin/dashboard/stats",
+			"args": [],
+			"isBackground": false,
+			"group": ""
+		},
+		{
+			"label": "Test Products Endpoint",
+			"type": "shell",
+			"command": "curl -s http://localhost:8000/api/v1/products?limit=1 | head -5",
+			"args": [],
+			"isBackground": false,
+			"group": ""
+		},
+		{
+			"label": "Check Dashboard Stats Status",
+			"type": "shell",
+			"command": "curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8000/api/v1/admin/dashboard/stats",
+			"args": [],
+			"isBackground": false,
+			"group": ""
+		},
+		{
+			"label": "Check Dashboard Stats GET",
+			"type": "shell",
+			"command": "curl -s -w \"%{http_code}\" http://localhost:8000/api/v1/admin/dashboard/stats | tail -1",
+			"args": [],
+			"isBackground": false,
+			"group": ""
+		},
+		{
+			"label": "Check Low Stock Endpoint",
+			"type": "shell",
+			"command": "curl -s -w \"%{http_code}\" http://localhost:8000/api/v1/admin/dashboard/low-stock?limit=5 | tail -1",
+			"args": [],
+			"isBackground": false,
+			"group": ""
+		},
+		{
+			"label": "Check CORS Headers",
+			"type": "shell",
+			"command": "curl -I http://localhost:8000/api/v1/products?limit=1",
+			"args": [],
+			"isBackground": false,
+			"group": ""
+		},
+		{
+			"label": "Check CORS Headers GET",
+			"type": "shell",
+			"command": "curl -v http://localhost:8000/api/v1/products?limit=1 2>&1 | head -20",
+			"args": [],
+			"isBackground": false,
+			"group": ""
+		},
+		{
+			"label": "Test Dashboard Stats",
+			"type": "shell",
+			"command": "curl -s http://localhost:8000/api/v1/admin/dashboard/stats",
+			"args": [],
+			"isBackground": false,
+			"group": ""
+		},
+		{
+			"label": "Test Dashboard Stats Raw",
+			"type": "shell",
+			"command": "curl -s http://localhost:8000/api/v1/admin/dashboard/stats",
+			"args": [],
+			"isBackground": false,
+			"group": ""
+		},
+		{
+			"label": "Test CORS Preflight",
+			"type": "shell",
+			"command": "curl -X OPTIONS -H \"Origin: http://localhost:5173\" -H \"Access-Control-Request-Method: GET\" -H \"Access-Control-Request-Headers: authorization\" -v http://localhost:8000/api/v1/admin/dashboard/stats 2>&1 | head -30",
+			"args": [],
+			"isBackground": false,
+			"group": ""
+		},
+		{
+			"label": "Test Correct Dashboard Endpoint",
+			"type": "shell",
+			"command": "curl -s http://localhost:8000/api/v1/admin/dashboard/stats",
+			"args": [],
+			"isBackground": false,
+			"group": ""
+		},
+		{
+			"label": "Test CORS on Error Response",
+			"type": "shell",
+			"command": "curl -v -H \"Origin: http://localhost:5173\" http://localhost:8000/__cause_500__ 2>&1 | head -40",
+			"args": []
+		},
+		{
+			"label": "Simulate error and check CORS",
+			"type": "shell",
+			"command": "curl -s -v -H \"Origin: http://localhost:5173\" http://localhost:8000/api/v1/admin/dashboard/stats 2>&1 | sed -n '1,120p'"
 		}
 	]
 }

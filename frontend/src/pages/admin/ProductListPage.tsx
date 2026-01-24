@@ -155,12 +155,12 @@ export default function ProductListPage() {
             />
           ) : (
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-700">
-              <Package className="h-5 w-5 text-slate-400" />
+              <Package className="h-5 w-5 text-gray-500 dark:text-slate-400" />
             </div>
           )}
           <div className="min-w-0">
-            <p className="truncate font-medium text-white">{row.name}</p>
-            <p className="text-xs text-slate-400">SKU: {row.sku}</p>
+            <p className="truncate font-medium text-gray-900 dark:text-white">{row.name}</p>
+            <p className="text-xs text-gray-500 dark:text-slate-400">SKU: {row.sku}</p>
           </div>
         </div>
       ),
@@ -180,7 +180,7 @@ export default function ProductListPage() {
       align: 'right',
       render: (value, row) => (
         <div className="text-right">
-          <p className="font-medium text-white">{formatCurrency(value)}</p>
+          <p className="font-medium text-gray-900 dark:text-white">{formatCurrency(value)}</p>
           {row.compare_at_price && row.compare_at_price > value && (
             <p className="text-xs text-slate-500 line-through">
               {formatCurrency(row.compare_at_price)}
@@ -219,7 +219,7 @@ export default function ProductListPage() {
           <span
             className={clsx(
               'rounded-full px-2 py-0.5 text-xs font-medium',
-              value ? 'bg-emerald-500/10 text-emerald-400' : 'bg-slate-500/10 text-slate-400'
+              value ? 'bg-emerald-500/10 text-emerald-400' : 'bg-slate-500/10 text-gray-500 dark:text-slate-400'
             )}
           >
             {value ? 'Active' : 'Inactive'}
@@ -243,7 +243,7 @@ export default function ProductListPage() {
               e.stopPropagation();
               setActionMenu(actionMenu === row.id ? null : row.id);
             }}
-            className="rounded p-1 text-slate-400 hover:bg-slate-700 hover:text-white"
+            className="rounded p-1 text-gray-500 dark:text-slate-400 hover:bg-slate-700 hover:text-gray-900 dark:text-white"
             aria-label="Product actions"
           >
             <MoreHorizontal className="h-5 w-5" />
@@ -255,7 +255,7 @@ export default function ProductListPage() {
                 className="fixed inset-0 z-10"
                 onClick={() => setActionMenu(null)}
               />
-              <div className="absolute right-0 top-8 z-20 w-48 rounded-lg border border-slate-700 bg-slate-800 py-1 shadow-lg">
+              <div className="absolute right-0 top-8 z-20 w-48 rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 py-1 shadow-lg">
                 <Link
                   to={`/products/${row.id}`}
                   target="_blank"
@@ -278,7 +278,7 @@ export default function ProductListPage() {
                   <Copy className="h-4 w-4" />
                   Duplicate
                 </button>
-                <div className="my-1 border-t border-slate-700" />
+                <div className="my-1 border-t border-gray-200 dark:border-slate-700" />
                 <button
                   onClick={() => handleDeleteClick(row)}
                   className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-400 hover:bg-slate-700"
@@ -299,7 +299,7 @@ export default function ProductListPage() {
     <>
       {selectedProducts.length > 0 && (
         <div className="flex items-center gap-2">
-          <span className="text-sm text-slate-400">
+          <span className="text-sm text-gray-500 dark:text-slate-400">
             {selectedProducts.length} selected
           </span>
           <button
@@ -319,8 +319,8 @@ export default function ProductListPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Products</h1>
-          <p className="text-sm text-slate-400">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Products</h1>
+          <p className="text-sm text-gray-500 dark:text-slate-400">
             Manage your product catalog ({products.total} products)
           </p>
         </div>
@@ -335,7 +335,7 @@ export default function ProductListPage() {
           </button>
           <Link
             to="/admin/products/new"
-            className="flex items-center gap-2 rounded-lg bg-emerald-500 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-600"
+            className="flex items-center gap-2 rounded-lg bg-emerald-500 px-4 py-2 text-sm font-medium text-gray-900 dark:text-white hover:bg-emerald-600"
           >
             <Plus className="h-4 w-4" />
             Add Product
@@ -347,19 +347,19 @@ export default function ProductListPage() {
       <div className="flex flex-wrap items-center gap-4">
         {/* Search */}
         <form onSubmit={handleSearch} className="relative flex-1 min-w-[200px] max-w-md">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500 dark:text-slate-400" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search products by name, SKU..."
-            className="w-full rounded-lg border border-slate-600 bg-slate-800 py-2 pl-10 pr-10 text-sm text-white placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none"
+            className="w-full rounded-lg border border-slate-600 bg-white dark:bg-slate-800 py-2 pl-10 pr-10 text-sm text-gray-900 dark:text-white placeholder:text-gray-500 dark:text-slate-400 focus:border-emerald-500 focus:outline-none"
           />
           {searchQuery && (
             <button
               type="button"
               onClick={handleClearSearch}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:text-white"
               aria-label="Clear search"
             >
               <X className="h-4 w-4" />
@@ -371,7 +371,7 @@ export default function ProductListPage() {
         <select
           value={categoryFilter}
           onChange={(e) => handleCategoryChange(e.target.value)}
-          className="rounded-lg border border-slate-600 bg-slate-800 px-4 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none"
+          className="rounded-lg border border-slate-600 bg-white dark:bg-slate-800 px-4 py-2 text-sm text-gray-900 dark:text-white focus:border-emerald-500 focus:outline-none"
           aria-label="Filter by category"
         >
           <option value="">All Categories</option>
@@ -386,7 +386,7 @@ export default function ProductListPage() {
         <select
           value={statusFilter}
           onChange={(e) => handleStatusChange(e.target.value)}
-          className="rounded-lg border border-slate-600 bg-slate-800 px-4 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none"
+          className="rounded-lg border border-slate-600 bg-white dark:bg-slate-800 px-4 py-2 text-sm text-gray-900 dark:text-white focus:border-emerald-500 focus:outline-none"
           aria-label="Filter by status"
         >
           <option value="">All Status</option>

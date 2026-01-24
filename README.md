@@ -110,7 +110,7 @@ from app.core.security import get_password_hash
 db = SessionLocal()
 
 admin = User(
-    email="admin@shophub.com",
+    email="admin@neatify.com",
     username="admin",
     full_name="Admin User",
     hashed_password=get_password_hash("admin123"),
@@ -280,7 +280,7 @@ REFRESH_TOKEN_EXPIRE_DAYS=7
 ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
 
 # Application Settings
-APP_NAME=ShopHub E-Commerce
+APP_NAME=Neatify E-Commerce
 DEBUG=True
 LOG_LEVEL=INFO
 
@@ -306,8 +306,8 @@ REDOC_URL=/redoc
 VITE_API_URL=http://localhost:8000/api/v1
 
 # App Configuration
-VITE_APP_NAME=My E-Commerce Store
-VITE_APP_DESCRIPTION=Your one-stop shop for everything
+VITE_APP_NAME=Neatify - Cleaning Supplies & Tools
+VITE_APP_DESCRIPTION=Your one-stop shop for all household and compound cleaning materials
 
 # Payment Configuration
 VITE_STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_key
@@ -328,7 +328,7 @@ VITE_DEFAULT_LANGUAGE=en
 ### Admin Access
 1. Navigate to http://localhost:5173/admin
 2. Login with admin credentials:
-   - Email: admin@shophub.com
+   - Email: admin@neatify.com
    - Password: admin123
 
 ### Adding Products

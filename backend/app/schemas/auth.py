@@ -86,6 +86,11 @@ class UserLogin(BaseModel):
     remember_me: bool = Field(False, description="Extend token expiration")
 
 
+class GoogleLogin(BaseModel):
+    """Google login request"""
+    token: str = Field(..., description="Google ID token")
+
+
 class LoginResponse(BaseModel):
     """Login response with tokens"""
     access_token: str

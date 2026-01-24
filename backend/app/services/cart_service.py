@@ -124,6 +124,221 @@ class CartService:
         return None
     
     @classmethod
+    def get_cart_for_user_or_session(
+        cls,
+        db: Session,
+        user: Optional[User] = None,
+        session_id: Optional[str] = None
+    ) -> Optional[Cart]:
+        """
+        Get cart for authenticated user or guest session.
+        Prioritizes user cart over session cart.
+        """
+        if user:
+            return cls.get_cart(db, user_id=user.id)
+        elif session_id:
+            return cls.get_cart(db, session_id=session_id)
+        return None
+    
+    @classmethod
+    def detect_user_cart_status(
+        cls,
+        db: Session,
+        user: Optional[User] = None,
+        session_id: Optional[str] = None
+    ) -> dict:
+        """
+        Detect cart status for user or session.
+        Returns information about existing carts and recommendations.
+        """
+        status_info = {
+            "has_user_cart": False,
+            "has_session_cart": False,
+            "user_cart_items": 0,
+            "session_cart_items": 0,
+            "can_merge": False,
+            "recommend_merge": False,
+            "user_type": "guest"
+        }
+        
+        if user:
+            status_info["user_type"] = "registered"
+            user_cart = cls.get_cart(db, user_id=user.id)
+            if user_cart and user_cart.items:
+                status_info["has_user_cart"] = True
+                status_info["user_cart_items"] = len(user_cart.items)
+        
+        if session_id:
+            session_cart = cls.get_cart(db, session_id=session_id)
+            if session_cart and session_cart.items:
+                status_info["has_session_cart"] = True
+                status_info["session_cart_items"] = len(session_cart.items)
+        
+        # Determine if merge is possible and recommended
+        if status_info["has_user_cart"] and status_info["has_session_cart"]:
+            status_info["can_merge"] = True
+            # Recommend merge if session cart has items and user just logged in
+            status_info["recommend_merge"] = status_info["session_cart_items"] > 0
+        
+    @classmethod
+    def detect_user_cart_based_on_products(
+        cls,
+        db: Session,
+        product_ids: List[int],
+        user: Optional[User] = None,
+        session_id: Optional[str] = None
+    ) -> dict:
+        """
+        Intelligent cart detection based on selected products.
+        Determines if user has existing cart with these products.
+        """
+        detection_result = {
+            "user_has_relevant_cart": False,
+            "session_has_relevant_cart": False,
+            "relevant_user_items": [],
+            "relevant_session_items": [],
+            "recommend_user_cart": False,
+            "recommend_session_merge": False,
+            "cart_priority": "session"  # Default to session for guests
+        }
+        
+        # Check user's cart for relevant products
+        if user:
+            user_cart = cls.get_cart(db, user_id=user.id)
+            if user_cart and user_cart.items:
+                relevant_items = []
+                for item in user_cart.items:
+                    if item.product_id in product_ids:
+                        relevant_items.append({
+                            "product_id": item.product_id,
+                            "quantity": item.quantity,
+                            "in_stock": item.product.stock >= item.quantity if item.product else False
+                        })
+                
+                if relevant_items:
+                    detection_result["user_has_relevant_cart"] = True
+                    detection_result["relevant_user_items"] = relevant_items
+                    detection_result["recommend_user_cart"] = True
+                    detection_result["cart_priority"] = "user"
+        
+        # Check session cart for relevant products
+        if session_id:
+            session_cart = cls.get_cart(db, session_id=session_id)
+            if session_cart and session_cart.items:
+                relevant_items = []
+                for item in session_cart.items:
+                    if item.product_id in product_ids:
+                        relevant_items.append({
+                            "product_id": item.product_id,
+                            "quantity": item.quantity,
+                            "in_stock": item.product.stock >= item.quantity if item.product else False
+                        })
+                
+                if relevant_items:
+                    detection_result["session_has_relevant_cart"] = True
+                    detection_result["relevant_session_items"] = relevant_items
+        
+        # Determine merge recommendation
+        if (detection_result["user_has_relevant_cart"] and 
+            detection_result["session_has_relevant_cart"] and
+            user):
+            # Both have relevant items - recommend merge to preserve user data
+            detection_result["recommend_session_merge"] = True
+        
+        return detection_result
+    
+    @classmethod
+    def get_smart_cart_for_products(
+        cls,
+        db: Session,
+        product_ids: List[int],
+        user: Optional[User] = None,
+        session_id: Optional[str] = None
+    ) -> tuple[Cart, dict]:
+        """
+        Get the most appropriate cart based on selected products.
+        Returns cart and detection metadata.
+        """
+        detection = cls.detect_user_cart_based_on_products(db, product_ids, user, session_id)
+        
+        cart = None
+        metadata = {
+            "cart_source": "new",
+            "detection_info": detection,
+            "merge_recommended": False
+        }
+        
+        if detection["cart_priority"] == "user" and user:
+            # Use user's cart
+            cart = cls.get_or_create_cart(db, user_id=user.id)
+            metadata["cart_source"] = "user"
+        elif session_id:
+            # Use session cart
+            cart = cls.get_or_create_cart(db, session_id=session_id)
+            metadata["cart_source"] = "session"
+            
+            # Check if merge is recommended
+            if detection["recommend_session_merge"]:
+                metadata["merge_recommended"] = True
+        else:
+            # Create new cart
+            if user:
+                cart = cls.get_or_create_cart(db, user_id=user.id)
+                metadata["cart_source"] = "user"
+            else:
+                session_id = cls.generate_session_id()
+                cart = cls.get_or_create_cart(db, session_id=session_id)
+                metadata["cart_source"] = "session"
+                metadata["session_id"] = session_id
+        
+        return cart, metadata
+    
+    @classmethod
+    def handle_guest_user_cart(
+        cls,
+        db: Session,
+        session_id: str,
+        product_ids: List[int] = None,
+        user_context: dict = None
+    ) -> dict:
+        """
+        Special handling for guest users.
+        - Extends cart expiration for guest users with specific products
+        - Tracks guest cart analytics
+        - Prepares for potential conversion to registered user
+        """
+        cart = cls.get_cart(db, session_id=session_id)
+        
+        if not cart:
+            return {"status": "no_cart", "message": "No guest cart found"}
+        
+        # Extend expiration for guest carts with valuable items
+        if product_ids:
+            # Check if cart contains high-value or frequently purchased items
+            valuable_items = []
+            for item in cart.items:
+                if item.product_id in product_ids:
+                    valuable_items.append(item.product_id)
+            
+            if valuable_items:
+                # Extend expiration by 24 hours for carts with target products
+                cart.refresh_expiration(96)  # 4 days instead of 3
+                db.commit()
+                
+                return {
+                    "status": "extended",
+                    "message": f"Guest cart expiration extended due to valuable items",
+                    "valuable_items": valuable_items,
+                    "expires_at": cart.expires_at
+                }
+        
+        return {
+            "status": "standard",
+            "message": "Standard guest cart handling",
+            "expires_at": cart.expires_at
+        }
+    
+    @classmethod
     def add_item(
         cls,
         db: Session,
@@ -466,7 +681,166 @@ class CartService:
         db.commit()
         return count
     
+    @classmethod
+    def handle_guest_user_cart(
+        cls,
+        db: Session,
+        session_id: str,
+        product_ids: List[int] = None,
+        user_context: dict = None
+    ) -> dict:
+        """
+        Enhanced special handling for guest users.
+        - Extends cart expiration for valuable carts
+        - Tracks guest behavior patterns
+        - Prepares for conversion analytics
+        """
+        cart = cls.get_cart(db, session_id=session_id)
+        
+        if not cart:
+            return {
+                "status": "no_cart", 
+                "message": "No guest cart found",
+                "actions": []
+            }
+        
+        actions_taken = []
+        expiration_extended = False
+        
+        # Extend expiration for carts with valuable items
+        if product_ids:
+            valuable_items = []
+            total_value = 0
+            
+            for item in cart.items:
+                if item.product and item.product_id in product_ids:
+                    valuable_items.append(item.product_id)
+                    # Calculate approximate value
+                    price = float(item.product.price)
+                    total_value += price * item.quantity
+            
+            # Extend expiration based on cart value and items
+            if valuable_items:
+                if total_value > 100000:  # High value cart (> 100,000)
+                    cart.refresh_expiration(168)  # 7 days
+                    expiration_extended = True
+                    actions_taken.append("high_value_extension")
+                elif len(valuable_items) >= 3:  # Multiple valuable items
+                    cart.refresh_expiration(120)  # 5 days
+                    expiration_extended = True
+                    actions_taken.append("multi_item_extension")
+                else:
+                    cart.refresh_expiration(96)  # 4 days
+                    expiration_extended = True
+                    actions_taken.append("standard_extension")
+                
+                if expiration_extended:
+                    db.commit()
+        
+        # Handle user context (browsing behavior, etc.)
+        conversion_potential = "low"
+        if user_context:
+            if user_context.get("viewed_checkout", False):
+                conversion_potential = "high"
+            elif user_context.get("added_multiple_items", False):
+                conversion_potential = "medium"
+        
+        return {
+            "status": "handled",
+            "message": f"Guest cart processed with {len(actions_taken)} actions",
+            "actions": actions_taken,
+            "expiration_extended": expiration_extended,
+            "expires_at": cart.expires_at,
+            "conversion_potential": conversion_potential,
+            "cart_value": sum(float(item.line_total or 0) for item in cart.items),
+            "item_count": cart.item_count
+        }
+    
     @staticmethod
     def generate_session_id() -> str:
         """Generate a unique session ID for anonymous carts"""
         return str(uuid.uuid4())
+    
+    @classmethod
+    def get_session_product_count(
+        cls,
+        db: Session,
+        session_id: str
+    ) -> dict:
+        """
+        Get product count statistics for a session.
+        Returns total products viewed, added to cart, etc.
+        """
+        # Get cart for session
+        cart = cls.get_cart(db, session_id=session_id)
+        
+        if not cart:
+            return {
+                "session_id": session_id,
+                "total_products_in_cart": 0,
+                "total_quantity": 0,
+                "unique_products": 0,
+                "cart_value": 0,
+                "last_activity": None
+            }
+        
+        # Calculate statistics
+        total_quantity = sum(item.quantity for item in cart.items)
+        unique_products = len(cart.items)
+        cart_value = sum(float(item.line_total or 0) for item in cart.items)
+        
+        return {
+            "session_id": session_id,
+            "total_products_in_cart": total_quantity,
+            "total_quantity": total_quantity,
+            "unique_products": unique_products,
+            "cart_value": cart_value,
+            "last_activity": cart.updated_at,
+            "cart_status": cart.status.value,
+            "expires_at": cart.expires_at
+        }
+    
+    @classmethod
+    def track_session_activity(
+        cls,
+        db: Session,
+        session_id: str,
+        activity_type: str,
+        product_id: Optional[int] = None,
+        metadata: Optional[dict] = None
+    ) -> None:
+        """
+        Track user session activity for analytics.
+        Types: view_product, add_to_cart, remove_from_cart, checkout_start, etc.
+        """
+        # For now, we'll update the cart's updated_at timestamp
+        # In a production system, you'd want to store this in a separate analytics table
+        cart = cls.get_cart(db, session_id=session_id)
+        if cart:
+            cart.updated_at = datetime.utcnow()
+            db.commit()
+    
+    @classmethod
+    def get_session_statistics(
+        cls,
+        db: Session,
+        session_id: str
+    ) -> dict:
+        """
+        Get comprehensive session statistics including product interactions.
+        """
+        stats = cls.get_session_product_count(db, session_id)
+        
+        # Add additional session metrics
+        stats.update({
+            "session_duration": None,  # Would need session start time
+            "conversion_funnel": {
+                "products_viewed": 0,  # Would need view tracking
+                "products_added": stats["unique_products"],
+                "checkout_started": False,
+                "order_completed": False
+            },
+            "engagement_score": min(stats["unique_products"] * 10, 100)  # Simple scoring
+        })
+        
+        return stats

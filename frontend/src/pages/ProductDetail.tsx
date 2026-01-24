@@ -55,19 +55,19 @@ export default function ProductDetailPage() {
   }, []);
   const handleAddToCart = async () => {
     if (!product) return;
-    
+
     // Prevent adding out-of-stock products
     if (product.stock === 0) {
       showToast('This product is out of stock', 'warning');
       return;
     }
-    
+
     // Prevent adding more than available stock
     if (quantity > product.stock) {
       showToast(`Only ${product.stock} items available in stock`, 'warning');
       return;
     }
-    
+
     setIsAddingToCart(true);
     // If user is logged in, use API cart
     if (token) {
@@ -150,8 +150,9 @@ export default function ProductDetailPage() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-        <div className="bg-slate-900 rounded-2xl p-8 max-w-5xl w-full mx-4 max-h-[90vh] overflow-auto">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-auto">
+        <div className="bg-slate-950/40 absolute inset-0 backdrop-blur-sm" />
+        <div className="bg-slate-900 rounded-2xl p-8 max-w-5xl w-full relative z-10 shadow-2xl border border-slate-800">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <Skeleton className="aspect-square rounded-xl" />
             <div className="space-y-4">
@@ -173,7 +174,7 @@ export default function ProductDetailPage() {
           <div className="text-6xl mb-4">😕</div>
           <h1 className="text-2xl font-bold text-white mb-2">Product Not Found</h1>
           <p className="text-slate-400 mb-6">
-            {error || "We couldn't find the product you're looking for."}
+            {(error as any) instanceof Error ? (error as any).message : (typeof error === 'string' ? error : "We couldn't find the product you're looking for.")}
           </p>
           <Button onClick={handleClose}>
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -338,13 +339,12 @@ export default function ProductDetailPage() {
                 <button
                   onClick={handleAddToCart}
                   disabled={isAddingToCart || product.stock === 0}
-                  className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-white transition-all ${
-                    addedToCart
-                      ? 'bg-emerald-600'
-                      : product.stock === 0
+                  className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-white transition-all ${addedToCart
+                    ? 'bg-emerald-600'
+                    : product.stock === 0
                       ? 'bg-slate-700 cursor-not-allowed opacity-60'
                       : 'bg-emerald-500 hover:bg-emerald-600 active:scale-[0.98]'
-                  }`}
+                    }`}
                 >
                   {addedToCart ? (
                     <>
@@ -409,11 +409,10 @@ export default function ProductDetailPage() {
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`pb-4 font-semibold capitalize transition-colors border-b-2 -mb-px ${
-                    activeTab === tab
-                      ? 'text-emerald-400 border-emerald-400'
-                      : 'text-slate-400 border-transparent hover:text-white'
-                  }`}
+                  className={`pb-4 font-semibold capitalize transition-colors border-b-2 -mb-px ${activeTab === tab
+                    ? 'text-emerald-400 border-emerald-400'
+                    : 'text-slate-400 border-transparent hover:text-white'
+                    }`}
                 >
                   {tab}
                   {tab === 'reviews' && reviews.total > 0 && (
@@ -457,14 +456,13 @@ export default function ProductDetailPage() {
                 )}
                 <div className="flex justify-between py-3 border-b border-slate-700">
                   <span className="text-slate-400">Stock</span>
-                  <span className={`font-medium ${
-                    product.stock === 0 ? 'text-red-400' : 
-                    product.stock <= 5 ? 'text-amber-400' : 
-                    'text-emerald-400'
-                  }`}>
-                    {product.stock === 0 ? 'Out of Stock' : 
-                     product.stock <= 5 ? `Low Stock (${product.stock} left)` : 
-                     `${product.stock} units available`}
+                  <span className={`font-medium ${product.stock === 0 ? 'text-red-400' :
+                    product.stock <= 5 ? 'text-amber-400' :
+                      'text-emerald-400'
+                    }`}>
+                    {product.stock === 0 ? 'Out of Stock' :
+                      product.stock <= 5 ? `Low Stock (${product.stock} left)` :
+                        `${product.stock} units available`}
                   </span>
                 </div>
                 <div className="flex justify-between py-3 border-b border-slate-700">

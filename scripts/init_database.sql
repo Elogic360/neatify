@@ -1,5 +1,5 @@
 -- ============================================================================
--- SHOPHUB E-COMMERCE DATABASE INITIALIZATION SCRIPT
+-- NEATIFY E-COMMERCE DATABASE INITIALIZATION SCRIPT
 -- ============================================================================
 -- Run this script as PostgreSQL superuser to set up the database
 -- Usage: psql -U postgres -f init_database.sql
@@ -34,7 +34,7 @@ CREATE DATABASE ecommerce
     CONNECTION LIMIT = -1;
 
 -- Add a comment to the database
-COMMENT ON DATABASE ecommerce IS 'ShopHub E-Commerce Platform Database';
+COMMENT ON DATABASE ecommerce IS 'Neatify - Cleaning Supplies & Tools Platform Database';
 
 -- ============================================================================
 -- 2. CONNECT TO THE NEW DATABASE

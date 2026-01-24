@@ -4,7 +4,7 @@
 # GITHUB SETUP SCRIPT FOR E-COMMERCE STORE
 # ===========================================
 
-echo "🚀 Setting up GitHub repository for ShopHub E-Commerce Store"
+echo "🚀 Setting up GitHub repository for CommerceHub E-Commerce Store"
 echo "=========================================================="
 
 # Colors for output
@@ -104,7 +104,7 @@ fi
 
 # Step 6: Initial commit
 print_status "Step 6: Creating initial commit..."
-git commit -m "Initial commit: ShopHub E-Commerce Platform
+git commit -m "Initial commit: CommerceHub E-Commerce Platform
 
 - Full-stack e-commerce application
 - FastAPI backend with PostgreSQL

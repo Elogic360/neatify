@@ -10,6 +10,9 @@ from fastapi import APIRouter, Depends, HTTPException, status, Form, Body, Query
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from pydantic import EmailStr
+import secrets
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
 
 from app.db.session import get_db
 from app.models.customer import User, Role
@@ -37,6 +40,7 @@ from app.schemas.auth import (
     UserRegister,
     UserRegisterSimple,
     UserLogin,
+    GoogleLogin,
     LoginResponse,
     Token,
     TokenWithRefresh,
@@ -320,6 +324,103 @@ def login_json(
         expires_in=int(access_expires.total_seconds()),
         user=UserResponse.model_validate(user)
     )
+
+
+@router.post("/login/google", response_model=LoginResponse)
+def login_google(
+    google_data: GoogleLogin,
+    db: Session = Depends(get_db)
+):
+    """
+    Login or Register using Google account.
+    """
+    try:
+        # Verify Google ID Token
+        idinfo = id_token.verify_oauth2_token(
+            google_data.token, 
+            google_requests.Request(), 
+            settings.GOOGLE_CLIENT_ID
+        )
+
+        # ID token is valid. Get user's Google info.
+        email = idinfo['email']
+        name = idinfo.get('name', '')
+        # google_id = idinfo['sub'] # can be used if we had a google_id column
+
+        # Find user by email
+        user = db.query(User).filter(User.email == email).first()
+        
+        if not user:
+            # Create new user for first-time Google signup
+            # Generate a random username if name not unique or not available
+            base_username = email.split('@')[0]
+            username = base_username
+            
+            # Check if username exists
+            counter = 1
+            while db.query(User).filter(User.username == username).first():
+                username = f"{base_username}{counter}"
+                counter += 1
+            
+            # Use random password for social login users
+            random_pass = secrets.token_urlsafe(24)
+            hashed_password = get_password_hash(random_pass)
+            
+            user = User(
+                email=email,
+                username=username,
+                full_name=name,
+                hashed_password=hashed_password,
+                role=Role.USER.value,
+                is_active=True,
+            )
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+        
+        if not user.is_active:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="User account is deactivated"
+            )
+
+        # Handle successful login
+        handle_successful_login(user, db)
+        
+        # Create tokens
+        access_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        refresh_expires = timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+        
+        access_token = create_access_token(
+            subject=user.email,
+            role=user.role,
+            expires_delta=access_expires
+        )
+        
+        refresh_token = create_refresh_token(
+            subject=user.email,
+            expires_delta=refresh_expires
+        )
+        
+        return LoginResponse(
+            access_token=access_token,
+            refresh_token=refresh_token,
+            token_type="bearer",
+            expires_in=int(access_expires.total_seconds()),
+            user=UserResponse.model_validate(user)
+        )
+
+    except ValueError:
+        # Invalid token
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid Google token"
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Google login failed: {str(e)}"
+        )
 
 
 # =============================================================================

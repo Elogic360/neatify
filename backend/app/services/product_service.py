@@ -156,7 +156,8 @@ def get_products_paginated(
     # Base query with eager loading
     query = db.query(Product).options(
         joinedload(Product.images),
-        joinedload(Product.categories)
+        joinedload(Product.categories),
+        joinedload(Product.variations)
     )
     
     # Apply active filter by default ONLY if not explicitly set in filters

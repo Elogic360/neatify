@@ -6,7 +6,9 @@ interface User {
   email: string;
   username: string;
   full_name?: string;
+  phone?: string;
   role: string;
+  created_at?: string;
 }
 
 interface CartItem {
@@ -21,6 +23,8 @@ interface AppState {
   token: string | null;
   cart: CartItem[];
 
+  theme: 'light' | 'dark';
+
   setUser: (user: User | null) => void;
   setToken: (token: string | null) => void;
   setCart: (cart: CartItem[]) => void;
@@ -29,14 +33,17 @@ interface AppState {
   updateCartItem: (id: number, quantity: number) => void;
   clearCart: () => void;
   logout: () => void;
+  setTheme: (theme: 'light' | 'dark') => void;
+  toggleTheme: () => void;
 }
 
 export const useStore = create<AppState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       token: null,
       cart: [],
+      theme: 'dark',
 
       setUser: (user) => set({ user }),
 
@@ -71,6 +78,20 @@ export const useStore = create<AppState>()(
         localStorage.removeItem('token');
         set({ user: null, token: null, cart: [] });
         window.location.href = '/login';
+      },
+
+      setTheme: (theme) => {
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+        set({ theme });
+      },
+
+      toggleTheme: () => {
+        const newTheme = get().theme === 'dark' ? 'light' : 'dark';
+        get().setTheme(newTheme);
       },
     }),
     {

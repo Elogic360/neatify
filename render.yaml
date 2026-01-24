@@ -1,0 +1,35 @@
+services:
+  # PostgreSQL Database
+  - type: pserv
+    name: commercehub-db
+    env: docker
+    plan: free
+    databases:
+      - name: commercehub_db
+        databaseName: commercehub_production
+        user: commercehub_user
+
+  # Backend API
+  - type: web
+    name: commercehub-backend
+    env: python
+    plan: free
+    region: oregon
+    buildCommand: "cd backend && pip install -r requirements.txt && alembic upgrade head"
+    startCommand: "cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: commercehub-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: 10080
+      - key: ENVIRONMENT
+        value: production
+      - key: ALLOWED_ORIGINS
+        value: https://your-netlify-domain.netlify.app

@@ -234,3 +234,9 @@ class Review(Base):
 
     product: Mapped["Product"] = relationship("Product", back_populates="reviews")
     user: Mapped["User"] = relationship("User", back_populates="reviews")
+
+
+# Add indexes for performance optimization
+Index("ix_products_is_active", Product.is_active)
+Index("ix_products_created_at", Product.created_at)
+Index("ix_products_is_active_created_at", Product.is_active, Product.created_at)

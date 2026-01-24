@@ -19,6 +19,8 @@ import {
   Search,
   User,
   Boxes,
+  Sun,
+  Moon,
   Tags,
 } from 'lucide-react';
 import { useStore } from '@/app/store';
@@ -51,7 +53,7 @@ const bottomNavItems: NavItem[] = [
 export default function AdminLayoutEnhanced() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, logout } = useStore();
+  const { user, logout, theme, toggleTheme } = useStore();
   const { ui, toggleSidebar, toggleSidebarCollapse, showConfirmDialog, hideConfirmDialog, hideToast } = useAdminStore();
 
   const [searchOpen, setSearchOpen] = useState(false);
@@ -279,6 +281,19 @@ export default function AdminLayoutEnhanced() {
               </button>
             )}
 
+            {/* Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="rounded-lg p-2 text-slate-400 hover:bg-slate-800 hover:text-white"
+              aria-label="Toggle theme"
+            >
+              {theme === 'dark' ? (
+                <Sun className="h-5 w-5" />
+              ) : (
+                <Moon className="h-5 w-5" />
+              )}
+            </button>
+
             {/* Notifications */}
             <button
               className="relative rounded-lg p-2 text-slate-400 hover:bg-slate-800 hover:text-white"
@@ -323,7 +338,7 @@ export default function AdminLayoutEnhanced() {
         confirmLabel={ui.confirmDialog.confirmLabel}
         cancelLabel={ui.confirmDialog.cancelLabel}
         variant={ui.confirmDialog.variant}
-        onConfirm={ui.confirmDialog.onConfirm || (() => {})}
+        onConfirm={ui.confirmDialog.onConfirm || (() => { })}
         onClose={ui.confirmDialog.onCancel || hideConfirmDialog}
       />
     </div>

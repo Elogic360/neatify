@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Admin User Creation Script
-Creates an admin user for the ShopHub E-Commerce platform.
+Creates an admin user for the Neatify - Cleaning Supplies & Tools platform.
 
 Usage:
     python create_admin.py
@@ -132,7 +132,7 @@ def main():
     """Main entry point for admin creation script"""
     
     parser = argparse.ArgumentParser(
-        description="Create an admin user for ShopHub E-Commerce",
+        description="Create an admin user for Neatify E-Commerce",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -180,15 +180,15 @@ Examples:
     
     args = parser.parse_args()
     
-    print("\n🔐 ShopHub Admin User Creation")
+    print("\n🔐 Neatify Admin User Creation")
     print("=" * 40 + "\n")
     
     # Get email
     email = args.email
     if not email and not args.no_interactive:
-        email = input("Enter admin email [admin@shophub.com]: ").strip()
+        email = input("Enter admin email [admin@neatify.com]: ").strip()
         if not email:
-            email = "admin@shophub.com"
+            email = "admin@neatify.com"
     
     if not email:
         print("❌ Email is required!")

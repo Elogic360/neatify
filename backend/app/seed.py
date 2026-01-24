@@ -17,10 +17,10 @@ import random
 
 # Sample Data
 USERS = [
-    {"email": "admin@shophub.com", "username": "admin", "full_name": "Admin User", "password": "Admin123!", "is_admin": True},
+    {"email": "admin@neatify.com", "username": "admin", "full_name": "Admin User", "password": "Admin123!", "is_admin": True},
     {"email": "john.doe@example.com", "username": "john_doe", "full_name": "John Doe", "password": "Password123!", "is_admin": False},
     {"email": "jane.smith@example.com", "username": "jane_smith", "full_name": "Jane Smith", "password": "Password123!", "is_admin": False},
-    {"email": "inventory@shophub.com", "username": "inventory_mgr", "full_name": "Inventory Manager", "password": "Inventory123!", "role": "INVENTORY_MANAGER"},
+    {"email": "inventory@neatify.com", "username": "inventory_mgr", "full_name": "Inventory Manager", "password": "Inventory123!", "role": "INVENTORY_MANAGER"},
 ]
 
 CATEGORIES = [
@@ -337,7 +337,7 @@ def seed_data():
         print(f"   - Categories: {len(category_map)}")
         print(f"   - Products: {len(product_map)}")
         print(f"   - Reviews: {review_count}")
-        print("\nAdmin credentials: admin@shophub.com / Admin123!")
+        print("\nAdmin credentials: admin@neatify.com / Admin123!")
 
     except Exception as e:
         print(f"Error seeding data: {e}")

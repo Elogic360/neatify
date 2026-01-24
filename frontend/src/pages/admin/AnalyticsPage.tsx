@@ -135,13 +135,13 @@ export default function AnalyticsPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Analytics</h1>
-          <p className="text-sm text-slate-400">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Analytics</h1>
+          <p className="text-sm text-gray-500 dark:text-slate-400">
             Track your store performance and insights
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex items-center rounded-lg border border-slate-700 bg-slate-800 p-1">
+          <div className="flex items-center rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-1">
             {DATE_RANGES.slice(0, 4).map((range) => (
               <button
                 key={range.value}
@@ -149,8 +149,8 @@ export default function AnalyticsPage() {
                 className={clsx(
                   'rounded-md px-3 py-1.5 text-sm font-medium transition',
                   dateRange === range.value
-                    ? 'bg-emerald-500 text-white'
-                    : 'text-slate-400 hover:text-white'
+                    ? 'bg-emerald-500 text-gray-900 dark:text-white'
+                    : 'text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:text-white'
                 )}
               >
                 {range.label}
@@ -213,26 +213,26 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Simple Summary */}
-      <div className="rounded-xl border border-slate-700 bg-slate-800/50 p-6">
-        <h3 className="mb-4 text-lg font-semibold text-white">Sales Summary</h3>
+      <div className="rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 p-6">
+        <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Sales Summary</h3>
         <div className="grid gap-4 sm:grid-cols-3">
-          <div className="rounded-lg border border-slate-700 p-4 text-center">
-            <p className="text-3xl font-bold text-white">
+          <div className="rounded-lg border border-gray-200 dark:border-slate-700 p-4 text-center">
+            <p className="text-3xl font-bold text-gray-900 dark:text-white">
               {formatCurrency(data?.total_revenue || 0)}
             </p>
-            <p className="text-sm text-slate-400">Total Revenue</p>
+            <p className="text-sm text-gray-500 dark:text-slate-400">Total Revenue</p>
           </div>
-          <div className="rounded-lg border border-slate-700 p-4 text-center">
+          <div className="rounded-lg border border-gray-200 dark:border-slate-700 p-4 text-center">
             <p className="text-3xl font-bold text-emerald-400">
               {data?.total_orders || 0}
             </p>
-            <p className="text-sm text-slate-400">Total Orders</p>
+            <p className="text-sm text-gray-500 dark:text-slate-400">Total Orders</p>
           </div>
-          <div className="rounded-lg border border-slate-700 p-4 text-center">
+          <div className="rounded-lg border border-gray-200 dark:border-slate-700 p-4 text-center">
             <p className="text-3xl font-bold text-blue-400">
               {formatCurrency(data?.average_order_value || 0)}
             </p>
-            <p className="text-sm text-slate-400">Average Order Value</p>
+            <p className="text-sm text-gray-500 dark:text-slate-400">Average Order Value</p>
           </div>
         </div>
       </div>
@@ -261,7 +261,7 @@ function MetricCard({
   };
 
   return (
-    <div className="rounded-xl border border-slate-700 bg-slate-800/50 p-6">
+    <div className="rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 p-6">
       <div className="flex items-start justify-between">
         <div className={clsx('rounded-lg p-3', colorClasses[color])}>{icon}</div>
         {change !== undefined && (
@@ -280,8 +280,8 @@ function MetricCard({
           </div>
         )}
       </div>
-      <p className="mt-4 text-2xl font-bold text-white">{value}</p>
-      <p className="mt-1 text-sm text-slate-400">{title}</p>
+      <p className="mt-4 text-2xl font-bold text-gray-900 dark:text-white">{value}</p>
+      <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">{title}</p>
     </div>
   );
 }

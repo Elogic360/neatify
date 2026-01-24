@@ -4,6 +4,7 @@ Complete product management endpoints with CRUD operations, image upload, and se
 """
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File, Form, status
+# from fastapi_cache.decorator import cache
 from sqlalchemy.orm import Session, joinedload
 
 from app.db.session import get_db
@@ -29,6 +30,7 @@ router = APIRouter()
 # =============================================================================
 
 @router.get("/products", response_model=ProductListResponse)
+# @cache(expire=300)  # Cache for 5 minutes
 def list_products(
     page: int = Query(1, ge=1, description="Page number"),
     per_page: int = Query(20, ge=1, le=100, description="Items per page"),

@@ -1,4 +1,5 @@
 import React from 'react'
+import clsx from 'clsx'
 
 type Props = {
   /** @deprecated Use isOpen instead */
@@ -8,9 +9,10 @@ type Props = {
   children: React.ReactNode
   onClose: () => void
   footer?: React.ReactNode
+  className?: string
 }
 
-export default function Modal({ open, isOpen, title, children, onClose, footer }: Props) {
+export default function Modal({ open, isOpen, title, children, onClose, footer, className }: Props) {
   // Support both open (legacy) and isOpen (new)
   const visible = isOpen ?? open ?? false
 
@@ -24,7 +26,7 @@ export default function Modal({ open, isOpen, title, children, onClose, footer }
         aria-hidden
       />
       <div className="absolute inset-0 flex items-center justify-center p-4">
-        <div className="w-full max-w-lg rounded-2xl border border-white/10 bg-slate-950 shadow-glow max-h-[90vh] overflow-y-auto">
+        <div className={clsx("w-full max-w-lg rounded-2xl border border-white/10 bg-slate-950 shadow-glow max-h-[90vh] overflow-y-auto", className)}>
           <div className="flex items-start justify-between gap-4 border-b border-white/10 p-5 sticky top-0 bg-slate-950">
             <div>
               <div className="text-base font-semibold">{title}</div>

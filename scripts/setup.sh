@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================================================
-# SHOPHUB SETUP SCRIPT
+# NEATIFY SETUP SCRIPT
 # Cross-platform setup for development environment
 # ============================================================================
 
@@ -46,7 +46,7 @@ check_command() {
 # MAIN SCRIPT
 # ============================================================================
 
-print_header "ShopHub E-Commerce Platform Setup"
+print_header "Neatify - Cleaning Supplies & Tools Platform Setup"
 
 echo "This script will set up your development environment."
 echo ""

@@ -245,16 +245,16 @@ export default function ProductFormPage() {
         <div className="flex items-center gap-4">
           <button
             onClick={() => navigate('/admin/products')}
-            className="rounded-lg p-2 text-slate-400 hover:bg-slate-700 hover:text-white"
+            className="rounded-lg p-2 text-gray-500 dark:text-slate-400 hover:bg-slate-700 hover:text-gray-900 dark:text-white"
             aria-label="Go back to products"
           >
             <ArrowLeft className="h-5 w-5" />
           </button>
           <div>
-            <h1 className="text-2xl font-bold text-white">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
               {isEdit ? 'Edit Product' : 'Add New Product'}
             </h1>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-gray-500 dark:text-slate-400">
               {isEdit ? 'Update product details' : 'Create a new product'}
             </p>
           </div>
@@ -263,8 +263,8 @@ export default function ProductFormPage() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Basic Info */}
-        <section className="rounded-xl border border-slate-700 bg-slate-800/50 p-6">
-          <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-white">
+        <section className="rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 p-6">
+          <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white">
             <Package className="h-5 w-5 text-emerald-400" />
             Product Information
           </h2>
@@ -280,7 +280,7 @@ export default function ProductFormPage() {
                 value={formData.name}
                 onChange={handleChange}
                 className={clsx(
-                  'w-full rounded-lg border bg-slate-900 px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2',
+                  'w-full rounded-lg border bg-slate-900 px-4 py-3 text-gray-900 dark:text-white placeholder-slate-500 focus:outline-none focus:ring-2',
                   errors.name
                     ? 'border-red-500 focus:ring-red-500'
                     : 'border-slate-600 focus:border-emerald-500 focus:ring-emerald-500'
@@ -306,7 +306,7 @@ export default function ProductFormPage() {
                   name="category_id"
                   value={formData.category_id}
                   onChange={handleChange}
-                  className="flex-1 rounded-lg border border-slate-600 bg-slate-900 px-4 py-3 text-white focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="flex-1 rounded-lg border border-slate-600 bg-slate-900 px-4 py-3 text-gray-900 dark:text-white focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   aria-label="Product category"
                 >
                   <option value="">Select category (optional)</option>
@@ -331,8 +331,8 @@ export default function ProductFormPage() {
         </section>
 
         {/* Product Image */}
-        <section className="rounded-xl border border-slate-700 bg-slate-800/50 p-6">
-          <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-white">
+        <section className="rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 p-6">
+          <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white">
             <ImageIcon className="h-5 w-5 text-emerald-400" />
             Product Image
           </h2>
@@ -348,7 +348,7 @@ export default function ProductFormPage() {
               <button
                 type="button"
                 onClick={removeImage}
-                className="absolute -right-2 -top-2 rounded-full bg-red-500 p-1.5 text-white hover:bg-red-600"
+                className="absolute -right-2 -top-2 rounded-full bg-red-500 p-1.5 text-gray-900 dark:text-white hover:bg-red-600"
                 aria-label="Remove image"
               >
                 <X className="h-4 w-4" />
@@ -359,7 +359,7 @@ export default function ProductFormPage() {
           {/* Upload Button */}
           {!imagePreview && !existingImage && (
             <label className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-slate-600 bg-slate-900/50 p-8 transition hover:border-emerald-500 hover:bg-slate-900">
-              <Upload className="mb-2 h-10 w-10 text-slate-400" />
+              <Upload className="mb-2 h-10 w-10 text-gray-500 dark:text-slate-400" />
               <span className="text-sm font-medium text-slate-300">Click to upload image</span>
               <span className="mt-1 text-xs text-slate-500">PNG, JPG up to 5MB</span>
               <input
@@ -386,8 +386,8 @@ export default function ProductFormPage() {
         </section>
 
         {/* Pricing */}
-        <section className="rounded-xl border border-slate-700 bg-slate-800/50 p-6">
-          <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-white">
+        <section className="rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 p-6">
+          <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white">
             <DollarSign className="h-5 w-5 text-emerald-400" />
             Pricing
           </h2>
@@ -398,7 +398,7 @@ export default function ProductFormPage() {
                 Price <span className="text-red-400">*</span>
               </label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-slate-400">$</span>
                 <input
                   type="number"
                   name="price"
@@ -407,7 +407,7 @@ export default function ProductFormPage() {
                   min="0"
                   step="0.01"
                   className={clsx(
-                    'w-full rounded-lg border bg-slate-900 pl-8 pr-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2',
+                    'w-full rounded-lg border bg-slate-900 pl-8 pr-4 py-3 text-gray-900 dark:text-white placeholder-slate-500 focus:outline-none focus:ring-2',
                     errors.price
                       ? 'border-red-500 focus:ring-red-500'
                       : 'border-slate-600 focus:border-emerald-500 focus:ring-emerald-500'
@@ -429,7 +429,7 @@ export default function ProductFormPage() {
                 New Price <span className="text-slate-500">(Sale/Discount)</span>
               </label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-slate-400">$</span>
                 <input
                   type="number"
                   name="new_price"
@@ -438,7 +438,7 @@ export default function ProductFormPage() {
                   min="0"
                   step="0.01"
                   className={clsx(
-                    'w-full rounded-lg border bg-slate-900 pl-8 pr-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2',
+                    'w-full rounded-lg border bg-slate-900 pl-8 pr-4 py-3 text-gray-900 dark:text-white placeholder-slate-500 focus:outline-none focus:ring-2',
                     errors.new_price
                       ? 'border-red-500 focus:ring-red-500'
                       : 'border-slate-600 focus:border-emerald-500 focus:ring-emerald-500'
@@ -471,7 +471,7 @@ export default function ProductFormPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="flex items-center gap-2 rounded-lg bg-emerald-500 px-6 py-3 text-sm font-medium text-white hover:bg-emerald-600 disabled:opacity-50"
+            className="flex items-center gap-2 rounded-lg bg-emerald-500 px-6 py-3 text-sm font-medium text-gray-900 dark:text-white hover:bg-emerald-600 disabled:opacity-50"
           >
             {isLoading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -486,9 +486,9 @@ export default function ProductFormPage() {
       {/* Add Category Modal */}
       {showCategoryModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="mx-4 w-full max-w-md rounded-xl border border-slate-700 bg-slate-800 p-6 shadow-2xl">
+          <div className="mx-4 w-full max-w-md rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 shadow-2xl">
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
+              <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white">
                 <FolderPlus className="h-5 w-5 text-emerald-400" />
                 Add New Category
               </h3>
@@ -499,7 +499,7 @@ export default function ProductFormPage() {
                   setNewCategoryDescription('');
                   setCategoryError('');
                 }}
-                className="rounded-lg p-1 text-slate-400 hover:bg-slate-700 hover:text-white"
+                className="rounded-lg p-1 text-gray-500 dark:text-slate-400 hover:bg-slate-700 hover:text-gray-900 dark:text-white"
                 aria-label="Close modal"
                 title="Close"
               >
@@ -519,7 +519,7 @@ export default function ProductFormPage() {
                     setNewCategoryName(e.target.value);
                     setCategoryError('');
                   }}
-                  className="w-full rounded-lg border border-slate-600 bg-slate-900 px-4 py-3 text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full rounded-lg border border-slate-600 bg-slate-900 px-4 py-3 text-gray-900 dark:text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   placeholder="e.g., Electronics, Clothing, Home & Garden"
                   autoFocus
                 />
@@ -533,7 +533,7 @@ export default function ProductFormPage() {
                   value={newCategoryDescription}
                   onChange={(e) => setNewCategoryDescription(e.target.value)}
                   rows={3}
-                  className="w-full rounded-lg border border-slate-600 bg-slate-900 px-4 py-3 text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full rounded-lg border border-slate-600 bg-slate-900 px-4 py-3 text-gray-900 dark:text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   placeholder="Brief description of this category..."
                 />
               </div>
@@ -563,7 +563,7 @@ export default function ProductFormPage() {
                 type="button"
                 onClick={handleCreateCategory}
                 disabled={isCreatingCategory || !newCategoryName.trim()}
-                className="flex items-center gap-2 rounded-lg bg-emerald-500 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-600 disabled:opacity-50"
+                className="flex items-center gap-2 rounded-lg bg-emerald-500 px-4 py-2 text-sm font-medium text-gray-900 dark:text-white hover:bg-emerald-600 disabled:opacity-50"
               >
                 {isCreatingCategory ? (
                   <Loader2 className="h-4 w-4 animate-spin" />

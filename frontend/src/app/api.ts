@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { useStore } from './store';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 const API_BASE_URL = import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:8000';
@@ -50,8 +51,14 @@ api.interceptors.response.use(
 
 // Auth API
 export const authAPI = {
-  register: (data: { email: string; username: string; password: string; full_name?: string }) =>
-    api.post('/auth/register', data),
+  register: (data: {
+    email: string;
+    username: string;
+    password: string;
+    confirm_password: string;
+    full_name?: string;
+    phone?: string
+  }) => api.post('/auth/register', data),
 
   login: (data: { email: string; password: string }) => {
     // FastAPI OAuth2 uses form data for login by default with OAuth2PasswordRequestForm
@@ -63,7 +70,15 @@ export const authAPI = {
     });
   },
 
+  googleLogin: (token: string) => api.post('/auth/login/google', { token }),
+
   me: () => api.get('/auth/me'),
+
+  updateProfile: (data: { username?: string; full_name?: string; phone?: string }) =>
+    api.patch('/auth/me', data),
+
+  changePassword: (data: { current_password: string; new_password: string; confirm_password: string }) =>
+    api.post('/auth/password/change', data),
 };
 
 // Products API
@@ -91,6 +106,9 @@ export const productsAPI = {
 
 // Admin Products API
 export const adminProductsAPI = {
+  getAll: (params?: { skip?: number; limit?: number; search?: string }) =>
+    api.get('/admin/products', { params }),
+
   create: (data: any) => api.post('/admin/products', data),
 
   update: (id: number, data: any) => api.put(`/admin/products/${id}`, data),
@@ -113,14 +131,14 @@ export const adminProductsAPI = {
 
 // Cart API
 export const cartAPI = {
-  get: () => api.get('/cart'),
+  get: () => api.get('/cart/smart'),
 
   add: (data: { product_id: number; variation_id?: number; quantity: number }) =>
-    api.post('/cart/items', data),
+    api.post('/cart/smart/items', data),
 
-  update: (id: number, data: { quantity: number }) => api.put(`/cart/items/${id}`, data),
+  update: (id: number, data: { quantity: number }) => api.put(`/cart/smart/items/${id}`, data),
 
-  remove: (id: number) => api.delete(`/cart/items/${id}`),
+  remove: (id: number) => api.delete(`/cart/smart/items/${id}`),
 
   clear: () => api.delete('/cart'),
 };
@@ -149,7 +167,7 @@ export const ordersAPI = {
     items: Array<{ product_id: number; variation_id?: number; quantity: number }>;
   }) => api.post('/orders/guest', data),
 
-  trackGuest: (orderNumber: string, email: string) => 
+  trackGuest: (orderNumber: string, email: string) =>
     api.get('/orders/guest/track', { params: { order_number: orderNumber, email } }),
 
   getAll: (params?: { skip?: number; limit?: number }) => api.get('/orders', { params }),
@@ -177,7 +195,12 @@ export const categoriesAPI = {
 
 // Admin Dashboard API
 export const adminDashboardAPI = {
-  getStats: () => api.get('/admin/stats'),
+  getStats: () => api.get('/admin/dashboard/stats'),
+  getSales: (params?: { period?: string; days?: number }) => api.get('/admin/dashboard/sales', { params }),
+  getTopProducts: (params?: { limit?: number }) => api.get('/admin/dashboard/top-products', { params }),
+  getCategorySales: () => api.get('/admin/dashboard/category-sales'),
+  getRecentOrders: (params?: { limit?: number }) => api.get('/admin/dashboard/recent-orders', { params }),
+  getLowStock: (params?: { limit?: number }) => api.get('/admin/dashboard/low-stock', { params }),
 };
 
 // Admin Users API
@@ -194,6 +217,9 @@ export const adminUsersAPI = {
 
 // Admin Inventory API
 export const adminInventoryAPI = {
+  getAll: (params?: { skip?: number; limit?: number }) =>
+    api.get('/admin/inventory', { params }),
+
   getLogs: (params?: { product_id?: number; skip?: number; limit?: number }) =>
     api.get('/admin/inventory/logs', { params }),
 
@@ -216,5 +242,61 @@ export const adminCategoriesAPI = {
 
   delete: (id: number) => api.delete(`/admin/categories/${id}`),
 };
+
+// Types
+export type Customer = {
+  id: number;
+  email: string;
+  username: string;
+  name: string;
+  phone?: string;
+  is_active: boolean;
+  role: string;
+  created_at: string;
+};
+
+export type InventoryItem = {
+  id: number;
+  product_id: number;
+  product_name: string;
+  stock_quantity: number;
+  reserved_stock?: number;
+  available_stock?: number;
+  low_stock?: boolean;
+  last_updated: string;
+};
+
+export type InventoryLog = {
+  id: number;
+  product_id: number;
+  action: 'add' | 'remove' | 'adjust';
+  quantity: number;
+  reason?: string;
+  new_stock?: number;
+  created_at: string;
+};
+
+export type ProductCreate = {
+  name: string;
+  description?: string;
+  short_description?: string;
+  price: number;
+  original_price?: number;
+  sale_price?: number;
+  stock: number;
+  sku?: string;
+  brand?: string;
+  is_active?: boolean;
+  is_featured?: boolean;
+  is_new?: boolean;
+  is_bestseller?: boolean;
+  category_ids?: number[];
+  images?: File[];
+};
+
+export type ProductUpdate = Partial<ProductCreate> & { id: number };
+
+// Aliases for backward compatibility
+export const adminApi = adminUsersAPI;
 
 export default api;

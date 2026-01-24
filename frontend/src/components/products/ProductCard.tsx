@@ -7,7 +7,6 @@ import clsx from 'clsx';
 import { ShoppingCart, Heart, Star, Eye } from 'lucide-react';
 import type { ProductSummary, ViewMode } from '../../types/product';
 import { getImageUrl, formatPrice, calculateDiscount } from '../../services/productService';
-import Badge from '../ui/Badge';
 
 interface ProductCardProps {
   product: ProductSummary;

@@ -14,7 +14,7 @@ from app.models.features import Wishlist
 from app.schemas.features import WishlistItem, WishlistItemCreate, WishlistResponse
 from app.core.security import get_current_user
 
-router = APIRouter(prefix="/wishlist", tags=["wishlist"])
+router = APIRouter(tags=["wishlist"])
 
 
 @router.get("", response_model=WishlistResponse)

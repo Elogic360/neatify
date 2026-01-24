@@ -1,12 +1,12 @@
 @echo off
 REM ============================================================================
-REM SHOPHUB SETUP SCRIPT FOR WINDOWS
+REM NEATIFY SETUP SCRIPT FOR WINDOWS
 REM Development environment setup
 REM ============================================================================
 
 echo.
 echo ============================================================
-echo ShopHub E-Commerce Platform Setup
+echo Neatify - Cleaning Supplies ^& Tools Platform Setup
 echo ============================================================
 echo.
 

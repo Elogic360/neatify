@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import Field
 from typing import Optional, List
 
 class Settings(BaseSettings):
@@ -23,7 +24,7 @@ class Settings(BaseSettings):
     BACKEND_CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:5173"]
 
     # Application Settings
-    APP_NAME: str = "ShopHub E-Commerce"
+    APP_NAME: str = "Neatify E-Commerce"
     APP_VERSION: str = "1.5.0"
     DEBUG: bool = True
     LOG_LEVEL: str = "INFO"
@@ -50,7 +51,7 @@ class Settings(BaseSettings):
     PAYPAL_MODE: str = "sandbox"
 
     # Redis Configuration (Optional)
-    REDIS_URL: Optional[str] = None
+    REDIS_URL: Optional[str] = Field(default=None, description="Redis URL for caching (e.g. redis://localhost:6379)")
     CACHE_ENABLED: bool = False
 
     # Rate Limiting
@@ -81,14 +82,21 @@ class Settings(BaseSettings):
     DOCS_URL: str = "/docs"
     REDOC_URL: str = "/redoc"
 
-    # Database Pool Configuration
-    DB_POOL_SIZE: int = 5
-    DB_MAX_OVERFLOW: int = 10
-    DB_POOL_TIMEOUT: int = 30
-    DB_POOL_RECYCLE: int = 3600
+    # Database Pool Configuration - optimized for better performance
+    DB_POOL_SIZE: int = 15
+    DB_MAX_OVERFLOW: int = 30
+    DB_POOL_TIMEOUT: int = 60
+    DB_POOL_RECYCLE: int = 1800
 
     # Timezone
     TIMEZONE: str = "UTC"
+
+    # Google OAuth
+    GOOGLE_CLIENT_ID: Optional[str] = None
+    GOOGLE_CLIENT_SECRET: Optional[str] = None
+
+    # Cache settings
+    CACHE_TTL: int = Field(default=300, description="Default cache TTL in seconds (5 minutes)")
 
     model_config = SettingsConfigDict(
         env_file=".env",

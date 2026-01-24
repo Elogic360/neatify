@@ -5,7 +5,7 @@ Admin analytics and reporting endpoints.
 from datetime import datetime, timedelta
 from typing import Optional, Any
 from decimal import Decimal
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import func, desc
 
@@ -17,7 +17,7 @@ from app.models.features import ProductView
 from app.schemas.features import AnalyticsSummary, ProductViewStats, ProductViewCreate
 from app.core.security import get_current_user, get_current_admin_user
 
-router = APIRouter(prefix="/analytics", tags=["analytics"])
+router = APIRouter(tags=["analytics"])
 
 
 # Helper to get optional current user
@@ -185,6 +185,112 @@ def get_revenue_analytics(
             for row in daily_revenue
         ],
     }
+
+
+@router.get("/sales")
+def get_sales_analytics(
+    date_from: str = Query(..., description="Start date in YYYY-MM-DD format"),
+    date_to: str = Query(..., description="End date in YYYY-MM-DD format"),
+    db: Session = Depends(get_db),
+    current_admin: User = Depends(get_current_admin_user),
+):
+    """Get sales analytics for a date range"""
+    try:
+        start_date = datetime.strptime(date_from, "%Y-%m-%d").date()
+        end_date = datetime.strptime(date_to, "%Y-%m-%d").date()
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
+
+    if start_date > end_date:
+        raise HTTPException(status_code=400, detail="Start date must be before end date")
+
+    start_datetime = datetime.combine(start_date, datetime.min.time())
+    end_datetime = datetime.combine(end_date, datetime.max.time())
+
+    # Aggregate sales data by day
+    sales_data = (
+        db.query(
+            func.date(Order.created_at).label("date"),
+            func.sum(Order.total_amount).label("revenue"),
+            func.count(Order.id).label("orders"),
+            func.count(OrderItem.id).label("items_sold"),
+        )
+        .join(OrderItem, Order.id == OrderItem.order_id)
+        .filter(
+            Order.created_at >= start_datetime,
+            Order.created_at <= end_datetime,
+            Order.payment_status == "paid"
+        )
+        .group_by(func.date(Order.created_at))
+        .order_by("date")
+        .all()
+    )
+
+    return {
+        "date_from": date_from,
+        "date_to": date_to,
+        "data": [
+            {
+                "date": str(row.date),
+                "revenue": float(row.revenue),
+                "orders": row.orders,
+                "items_sold": row.items_sold,
+            }
+            for row in sales_data
+        ],
+    }
+
+
+@router.get("/export/sales")
+def export_sales_analytics(
+    date_from: str = Query(..., description="Start date in YYYY-MM-DD format"),
+    date_to: str = Query(..., description="End date in YYYY-MM-DD format"),
+    db: Session = Depends(get_db),
+    current_admin: User = Depends(get_current_admin_user),
+):
+    """Export sales analytics as CSV"""
+    try:
+        start_date = datetime.strptime(date_from, "%Y-%m-%d").date()
+        end_date = datetime.strptime(date_to, "%Y-%m-%d").date()
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
+
+    if start_date > end_date:
+        raise HTTPException(status_code=400, detail="Start date must be before end date")
+
+    start_datetime = datetime.combine(start_date, datetime.min.time())
+    end_datetime = datetime.combine(end_date, datetime.max.time())
+
+    # Get sales data
+    sales_data = (
+        db.query(
+            func.date(Order.created_at).label("date"),
+            func.sum(Order.total_amount).label("revenue"),
+            func.count(Order.id).label("orders"),
+            func.count(OrderItem.id).label("items_sold"),
+        )
+        .join(OrderItem, Order.id == OrderItem.order_id)
+        .filter(
+            Order.created_at >= start_datetime,
+            Order.created_at <= end_datetime,
+            Order.payment_status == "paid"
+        )
+        .group_by(func.date(Order.created_at))
+        .order_by("date")
+        .all()
+    )
+
+    # Create CSV content
+    csv_content = "Date,Revenue,Orders,Items Sold\n"
+    for row in sales_data:
+        csv_content += f"{row.date},{row.revenue},{row.orders},{row.items_sold}\n"
+
+    from fastapi.responses import Response
+    return Response(
+        content=csv_content,
+        media_type="text/csv",
+        headers={"Content-Disposition": f"attachment; filename=sales_{date_from}_to_{date_to}.csv"}
+    )
 
 
 @router.get("/products/performance")

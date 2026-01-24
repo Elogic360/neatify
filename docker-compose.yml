@@ -1,6 +1,6 @@
 # ============================================================================
 # DOCKER COMPOSE CONFIGURATION
-# ShopHub E-Commerce Platform
+# Neatify - Cleaning Supplies & Tools Platform
 # ============================================================================
 # Usage:
 #   Development: docker compose up -d
@@ -13,7 +13,7 @@ services:
   # ==========================================================================
   postgres:
     image: postgres:16-alpine
-    container_name: shophub_postgres
+    container_name: neatify_postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${DB_USER:-ecommerce_user}
@@ -26,19 +26,19 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./scripts/init_database.sql:/docker-entrypoint-initdb.d/init.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-ecommerce_user} -d ${DB_NAME:-ecommerce}"]
+      test: ["CMD-SHELL", "pg_isready -U ecommerce_user -d ecommerce"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
-      - shophub_network
+      - neatify_network
 
   # ==========================================================================
   # Redis Cache (Optional)
   # ==========================================================================
   redis:
     image: redis:7-alpine
-    container_name: shophub_redis
+    container_name: neatify_redis
     restart: unless-stopped
     ports:
       - "6379:6379"
@@ -51,7 +51,7 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - shophub_network
+      - neatify_network
     profiles:
       - with-redis
 
@@ -62,7 +62,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: shophub_backend
+    container_name: neatify_backend
     restart: unless-stopped
     environment:
       - DATABASE_URL=postgresql://${DB_USER:-ecommerce_user}:${DB_PASSWORD:-your_secure_password}@postgres:5432/${DB_NAME:-ecommerce}
@@ -86,7 +86,7 @@ services:
       retries: 3
       start_period: 40s
     networks:
-      - shophub_network
+      - neatify_network
     profiles:
       - full
 
@@ -98,7 +98,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       target: development
-    container_name: shophub_frontend
+    container_name: neatify_frontend
     restart: unless-stopped
     environment:
       - VITE_API_URL=http://localhost:8000/api/v1
@@ -111,7 +111,7 @@ services:
     depends_on:
       - backend
     networks:
-      - shophub_network
+      - neatify_network
     profiles:
       - full
 
@@ -120,7 +120,7 @@ services:
   # ==========================================================================
   nginx:
     image: nginx:alpine
-    container_name: shophub_nginx
+    container_name: neatify_nginx
     restart: unless-stopped
     ports:
       - "80:80"
@@ -132,7 +132,7 @@ services:
     depends_on:
       - backend
     networks:
-      - shophub_network
+      - neatify_network
     profiles:
       - production
 
@@ -140,15 +140,15 @@ services:
 # Networks
 # ==========================================================================
 networks:
-  shophub_network:
+  neatify_network:
     driver: bridge
-    name: shophub_network
+    name: neatify_network
 
 # ==========================================================================
 # Volumes
 # ==========================================================================
 volumes:
   postgres_data:
-    name: shophub_postgres_data
+    name: neatify_postgres_data
   redis_data:
-    name: shophub_redis_data
+    name: neatify_redis_data

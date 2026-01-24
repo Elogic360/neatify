@@ -1,10 +1,10 @@
 """
 Cart Router - Shopping cart management endpoints
-Supports both authenticated users and anonymous session carts.
+Supports both authenticated users and anonymous session carts with intelligent user detection.
 """
-from fastapi import APIRouter, Depends, HTTPException, status, Header, Cookie
+from fastapi import APIRouter, Depends, HTTPException, status, Header, Cookie, Request
 from sqlalchemy.orm import Session
-from typing import Optional
+from typing import Optional, List
 from app.db.session import get_db
 from app.schemas.cart import (
     CartItemCreate, CartItemUpdate, CartResponse, CartItemResponse,
@@ -16,6 +16,244 @@ from app.core.security import get_current_user, get_current_user_optional
 from app.services.cart_service import CartService, CartError
 
 router = APIRouter(prefix="/cart", tags=["Cart"])
+
+
+# =============================================================================
+# INTELLIGENT CART ENDPOINTS (Auto-detect user status)
+# =============================================================================
+
+@router.get("/smart", response_model=CartResponse)
+def get_smart_cart(
+    request: Request,
+    session_id: Optional[str] = Cookie(None, alias="cart_session_id"),
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user_optional)
+):
+    """
+    Intelligent cart endpoint that automatically detects user status:
+    - If user is authenticated: Returns their user cart
+    - If user is guest: Returns session cart based on cookie/session_id
+    - Creates cart if none exists
+    """
+    cart = None
+
+    if current_user:
+        # Authenticated user - get their cart
+        cart = CartService.get_or_create_cart(db, user_id=current_user.id)
+    else:
+        # Guest user - get session cart
+        if not session_id:
+            session_id = CartService.generate_session_id()
+
+        cart = CartService.get_or_create_cart(db, session_id=session_id)
+
+    # Validate cart and get warnings
+    is_valid, issues = CartService.validate_cart_for_checkout(db, cart)
+
+    response = _build_cart_response(cart, not is_valid, issues, include_session_id=not bool(current_user))
+
+    return response
+
+
+@router.post("/smart/items", response_model=CartItemResponse, status_code=status.HTTP_201_CREATED)
+def add_to_smart_cart(
+    item: CartItemCreate,
+    request: Request,
+    session_id: Optional[str] = Cookie(None, alias="cart_session_id"),
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user_optional)
+):
+    """
+    Add item to cart with intelligent user detection.
+    Automatically handles registered vs guest users.
+    """
+    cart = None
+
+    if current_user:
+        # Authenticated user
+        cart = CartService.get_or_create_cart(db, user_id=current_user.id)
+    else:
+        # Guest user
+        if not session_id:
+            session_id = CartService.generate_session_id()
+        cart = CartService.get_or_create_cart(db, session_id=session_id)
+
+    try:
+        cart_item = CartService.add_item(db, cart, item)
+        response = _build_cart_item_response(cart_item)
+
+        # Include session_id for guest users
+        if not current_user and session_id:
+            response.session_id = session_id
+
+        return response
+    except CartError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+
+
+@router.put("/smart/items/{item_id}", response_model=CartItemResponse)
+def update_smart_cart_item(
+    item_id: int,
+    item_update: CartItemUpdate,
+    session_id: Optional[str] = Cookie(None, alias="cart_session_id"),
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user_optional)
+):
+    """
+    Update cart item with intelligent user detection.
+    """
+    cart = CartService.get_cart_for_user_or_session(db, current_user, session_id)
+
+    if not cart:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Cart not found")
+
+    try:
+        cart_item = CartService.update_item_quantity(db, cart, item_id, item_update.quantity)
+        return _build_cart_item_response(cart_item)
+    except CartError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+
+
+@router.delete("/smart/items/{item_id}")
+def remove_from_smart_cart(
+    item_id: int,
+    session_id: Optional[str] = Cookie(None, alias="cart_session_id"),
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user_optional)
+):
+    """Remove item from cart with intelligent user detection"""
+    cart = CartService.get_cart_for_user_or_session(db, current_user, session_id)
+
+    if not cart:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Cart not found")
+
+    try:
+        CartService.remove_item(db, cart, item_id)
+        return {"message": "Item removed from cart"}
+    except CartError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+
+
+@router.get("/smart/status")
+def get_cart_status(
+    session_id: Optional[str] = Cookie(None, alias="cart_session_id"),
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user_optional)
+):
+    """
+    Get detailed cart status information.
+    Shows user type, existing carts, and merge recommendations.
+    """
+    status_info = CartService.detect_user_cart_status(db, current_user, session_id)
+    return status_info
+
+
+@router.post("/smart/guest/handle")
+def handle_guest_cart(
+    product_ids: Optional[List[int]] = None,
+    session_id: Optional[str] = Cookie(None, alias="cart_session_id"),
+    db: Session = Depends(get_db)
+):
+    """
+    Special handling for guest user carts.
+    Extends expiration for carts with valuable products.
+    """
+    if not session_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Session ID required for guest cart handling"
+        )
+    
+    result = CartService.handle_guest_user_cart(db, session_id, product_ids)
+    return result
+
+
+@router.post("/smart/detect")
+def detect_cart_based_on_products(
+    product_ids: List[int],
+    session_id: Optional[str] = Cookie(None, alias="cart_session_id"),
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user_optional)
+):
+    """
+    Intelligent cart detection based on selected products.
+    Determines if user has existing cart with these products and provides recommendations.
+    """
+    if not product_ids:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Product IDs are required for cart detection"
+        )
+    
+    detection_result = CartService.detect_user_cart_based_on_products(
+        db, product_ids, current_user, session_id
+    )
+    
+    # Get smart cart recommendation
+    smart_cart = CartService.get_smart_cart_for_products(
+        db, product_ids, current_user, session_id
+    )
+    
+    return {
+        "detection": detection_result,
+        "smart_cart": smart_cart,
+        "recommendations": {
+            "use_user_cart": detection_result.get("recommend_user_cart", False),
+            "use_session_cart": detection_result.get("recommend_session_cart", False),
+            "merge_carts": detection_result.get("recommend_merge", False)
+        }
+    }
+
+
+@router.post("/smart/convert")
+def convert_guest_to_user(
+    session_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Convert guest cart to user cart.
+    Alternative to merge - replaces user cart with guest cart.
+    """
+    session_cart = CartService.get_cart(db, session_id=session_id)
+    if not session_cart or not session_cart.items:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No guest cart found to convert"
+        )
+    
+    # Get user's current cart
+    user_cart = CartService.get_cart(db, user_id=current_user.id)
+    
+    # If user has existing cart, clear it first
+    if user_cart:
+        CartService.clear_cart(db, user_cart)
+        user_cart = CartService.get_or_create_cart(db, user_id=current_user.id)
+    
+    # Transfer all items from session cart to user cart
+    for item in session_cart.items:
+        try:
+            CartService.add_item(
+                db,
+                user_cart,
+                CartItemCreate(
+                    product_id=item.product_id,
+                    variation_id=item.variation_id,
+                    quantity=item.quantity
+                )
+            )
+        except CartError:
+            # Skip problematic items
+            pass
+    
+    # Mark session cart as converted
+    session_cart.status = "converted"
+    db.commit()
+    
+    return {
+        "message": "Guest cart converted to user cart successfully",
+        "item_count": user_cart.item_count
+    }
 
 
 # =============================================================================
@@ -218,7 +456,7 @@ def get_session_cart(
     
     is_valid, issues = CartService.validate_cart_for_checkout(db, cart)
     
-    return _build_cart_response(cart, not is_valid, issues)
+    return _build_cart_response(cart, not is_valid, issues, include_session_id=True)
 
 
 @router.post("/session/{session_id}/items", response_model=CartItemResponse, status_code=status.HTTP_201_CREATED)
@@ -300,12 +538,12 @@ def generate_session_id():
 # HELPER FUNCTIONS
 # =============================================================================
 
-def _build_cart_response(cart: Cart, has_issues: bool, issues: list) -> CartResponse:
+def _build_cart_response(cart: Cart, has_issues: bool, issues: list, include_session_id: bool = False) -> CartResponse:
     """Build CartResponse from Cart model"""
-    return CartResponse(
+    response = CartResponse(
         id=cart.id,
         user_id=cart.user_id,
-        session_id=cart.session_id,
+        session_id=cart.session_id if include_session_id else None,
         status=cart.status,
         promo_code=cart.promo_code,
         items=[_build_cart_item_response(item) for item in cart.items],
@@ -320,6 +558,7 @@ def _build_cart_response(cart: Cart, has_issues: bool, issues: list) -> CartResp
         has_stock_issues=has_issues,
         stock_warnings=issues,
     )
+    return response
 
 
 def _build_cart_item_response(item: CartItemModel) -> CartItemResponse:
@@ -380,5 +619,56 @@ def _build_cart_item_response(item: CartItemModel) -> CartItemResponse:
         in_stock=in_stock,
         available_quantity=available_quantity,
     )
+
+
+# =============================================================================
+# SESSION TRACKING ENDPOINTS
+# =============================================================================
+
+@router.get("/session/{session_id}/product-count", response_model=dict)
+def get_session_product_count(
+    session_id: str,
+    db: Session = Depends(get_db)
+):
+    """
+    Get the total number of products viewed/added in a session.
+    """
+    try:
+        count = CartService.get_session_product_count(db, session_id)
+        return {"session_id": session_id, "product_count": count}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error retrieving session product count: {str(e)}")
+
+
+@router.post("/session/{session_id}/track-activity")
+def track_session_activity(
+    session_id: str,
+    product_id: int,
+    activity_type: str = "view",  # view, add_to_cart, remove_from_cart, purchase
+    db: Session = Depends(get_db)
+):
+    """
+    Track user activity for a session (product views, cart actions, etc.)
+    """
+    try:
+        CartService.track_session_activity(db, session_id, product_id, activity_type)
+        return {"message": f"Activity '{activity_type}' tracked for session {session_id} and product {product_id}"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error tracking session activity: {str(e)}")
+
+
+@router.get("/session/{session_id}/statistics", response_model=dict)
+def get_session_statistics(
+    session_id: str,
+    db: Session = Depends(get_db)
+):
+    """
+    Get comprehensive session statistics including product counts and activity metrics.
+    """
+    try:
+        stats = CartService.get_session_statistics(db, session_id)
+        return {"session_id": session_id, **stats}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error retrieving session statistics: {str(e)}")
 
 

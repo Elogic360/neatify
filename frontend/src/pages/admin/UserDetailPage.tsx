@@ -106,7 +106,7 @@ export default function UserDetailPage() {
     return (
       <div className="flex min-h-[400px] flex-col items-center justify-center">
         <AlertTriangle className="h-12 w-12 text-amber-400" />
-        <h3 className="mt-4 text-lg font-semibold text-white">User not found</h3>
+        <h3 className="mt-4 text-lg font-semibold text-gray-900 dark:text-white">User not found</h3>
         <button
           onClick={() => navigate('/admin/users')}
           className="mt-4 text-emerald-400 hover:text-emerald-300"
@@ -126,7 +126,7 @@ export default function UserDetailPage() {
         <div className="flex items-start gap-4">
           <button
             onClick={() => navigate('/admin/users')}
-            className="rounded-lg p-2 text-slate-400 hover:bg-slate-700 hover:text-white"
+            className="rounded-lg p-2 text-gray-500 dark:text-slate-400 hover:bg-slate-700 hover:text-gray-900 dark:text-white"
             aria-label="Go back to users"
           >
             <ArrowLeft className="h-5 w-5" />
@@ -141,24 +141,24 @@ export default function UserDetailPage() {
               {user.role === 'admin' ? (
                 <ShieldCheck className="h-8 w-8 text-purple-400" />
               ) : (
-                <User className="h-8 w-8 text-slate-400" />
+                <User className="h-8 w-8 text-gray-500 dark:text-slate-400" />
               )}
             </div>
             <div>
               <div className="flex items-center gap-3">
-                <h1 className="text-2xl font-bold text-white">{fullName}</h1>
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{fullName}</h1>
                 <span
                   className={clsx(
                     'rounded-full px-2 py-0.5 text-xs font-medium capitalize',
                     user.role === 'admin'
                       ? 'bg-purple-500/10 text-purple-400'
-                      : 'bg-slate-500/10 text-slate-400'
+                      : 'bg-slate-500/10 text-gray-500 dark:text-slate-400'
                   )}
                 >
                   {user.role}
                 </span>
               </div>
-              <p className="mt-1 text-sm text-slate-400">{user.email}</p>
+              <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">{user.email}</p>
             </div>
           </div>
         </div>
@@ -184,7 +184,7 @@ export default function UserDetailPage() {
             <button
               onClick={() => setStatusConfirm({ open: true, action: 'activate' })}
               disabled={isUpdating}
-              className="flex items-center gap-2 rounded-lg bg-emerald-500 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-600 disabled:opacity-50"
+              className="flex items-center gap-2 rounded-lg bg-emerald-500 px-4 py-2 text-sm font-medium text-gray-900 dark:text-white hover:bg-emerald-600 disabled:opacity-50"
             >
               <CheckCircle className="h-4 w-4" />
               Activate
@@ -198,59 +198,59 @@ export default function UserDetailPage() {
         <div className="lg:col-span-2 space-y-6">
           {/* Stats */}
           <div className="grid gap-4 sm:grid-cols-3">
-            <div className="rounded-xl border border-slate-700 bg-slate-800/50 p-4">
+            <div className="rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 p-4">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/10">
                   <ShoppingCart className="h-5 w-5 text-blue-400" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-white">{user.orders_count}</p>
-                  <p className="text-sm text-slate-400">Orders</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{user.orders_count}</p>
+                  <p className="text-sm text-gray-500 dark:text-slate-400">Orders</p>
                 </div>
               </div>
             </div>
 
-            <div className="rounded-xl border border-slate-700 bg-slate-800/50 p-4">
+            <div className="rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 p-4">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/10">
                   <DollarSign className="h-5 w-5 text-emerald-400" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-white">
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
                     {formatCurrency(user.total_spent)}
                   </p>
-                  <p className="text-sm text-slate-400">Total Spent</p>
+                  <p className="text-sm text-gray-500 dark:text-slate-400">Total Spent</p>
                 </div>
               </div>
             </div>
 
-            <div className="rounded-xl border border-slate-700 bg-slate-800/50 p-4">
+            <div className="rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 p-4">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-500/10">
                   <Calendar className="h-5 w-5 text-amber-400" />
                 </div>
                 <div>
-                  <p className="text-lg font-bold text-white">
+                  <p className="text-lg font-bold text-gray-900 dark:text-white">
                     {formatDateTime(user.created_at).split(',')[0]}
                   </p>
-                  <p className="text-sm text-slate-400">Member Since</p>
+                  <p className="text-sm text-gray-500 dark:text-slate-400">Member Since</p>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Recent Orders */}
-          <div className="rounded-xl border border-slate-700 bg-slate-800/50 p-6">
-            <h3 className="mb-4 text-lg font-semibold text-white">Order Summary</h3>
+          <div className="rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 p-6">
+            <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Order Summary</h3>
             <div className="space-y-4">
-              <div className="flex items-center justify-between rounded-lg border border-slate-700 p-4">
+              <div className="flex items-center justify-between rounded-lg border border-gray-200 dark:border-slate-700 p-4">
                 <div className="flex items-center gap-4">
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-700">
-                    <ShoppingCart className="h-5 w-5 text-slate-400" />
+                    <ShoppingCart className="h-5 w-5 text-gray-500 dark:text-slate-400" />
                   </div>
                   <div>
-                    <p className="font-medium text-white">Total Orders</p>
-                    <p className="text-sm text-slate-400">{user.orders_count} orders placed</p>
+                    <p className="font-medium text-gray-900 dark:text-white">Total Orders</p>
+                    <p className="text-sm text-gray-500 dark:text-slate-400">{user.orders_count} orders placed</p>
                   </div>
                 </div>
                 <p className="font-medium text-emerald-400">
@@ -259,7 +259,7 @@ export default function UserDetailPage() {
               </div>
               <button
                 onClick={() => navigate('/admin/orders')}
-                className="w-full rounded-lg border border-slate-700 p-3 text-center text-sm text-slate-400 hover:bg-slate-700/50 hover:text-white"
+                className="w-full rounded-lg border border-gray-200 dark:border-slate-700 p-3 text-center text-sm text-gray-500 dark:text-slate-400 hover:bg-slate-700/50 hover:text-gray-900 dark:text-white"
               >
                 View All Orders
               </button>
@@ -267,11 +267,11 @@ export default function UserDetailPage() {
           </div>
 
           {/* Addresses */}
-          <div className="rounded-xl border border-slate-700 bg-slate-800/50 p-6">
-            <h3 className="mb-4 text-lg font-semibold text-white">Saved Addresses</h3>
+          <div className="rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 p-6">
+            <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Saved Addresses</h3>
             <div className="py-8 text-center">
               <MapPin className="mx-auto h-12 w-12 text-slate-500" />
-              <p className="mt-2 text-slate-400">Address information not available</p>
+              <p className="mt-2 text-gray-500 dark:text-slate-400">Address information not available</p>
             </div>
           </div>
         </div>
@@ -279,16 +279,16 @@ export default function UserDetailPage() {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* User Info */}
-          <div className="rounded-xl border border-slate-700 bg-slate-800/50 p-6">
-            <h3 className="mb-4 text-lg font-semibold text-white">Contact Info</h3>
+          <div className="rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 p-6">
+            <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Contact Info</h3>
             <div className="space-y-4">
               <div className="flex items-center gap-3">
-                <Mail className="h-5 w-5 text-slate-400" />
+                <Mail className="h-5 w-5 text-gray-500 dark:text-slate-400" />
                 <span className="text-slate-300">{user.email}</span>
               </div>
               {user.phone && (
                 <div className="flex items-center gap-3">
-                  <Phone className="h-5 w-5 text-slate-400" />
+                  <Phone className="h-5 w-5 text-gray-500 dark:text-slate-400" />
                   <span className="text-slate-300">{user.phone}</span>
                 </div>
               )}
@@ -296,11 +296,11 @@ export default function UserDetailPage() {
           </div>
 
           {/* Account Status */}
-          <div className="rounded-xl border border-slate-700 bg-slate-800/50 p-6">
-            <h3 className="mb-4 text-lg font-semibold text-white">Account Status</h3>
+          <div className="rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 p-6">
+            <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Account Status</h3>
             <div className="space-y-4 text-sm">
               <div className="flex items-center justify-between">
-                <span className="text-slate-400">Status</span>
+                <span className="text-gray-500 dark:text-slate-400">Status</span>
                 <span
                   className={clsx(
                     'rounded-full px-2 py-0.5 text-xs font-medium',
@@ -313,7 +313,7 @@ export default function UserDetailPage() {
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-slate-400">Email Verified</span>
+                <span className="text-gray-500 dark:text-slate-400">Email Verified</span>
                 <span
                   className={clsx(
                     'rounded-full px-2 py-0.5 text-xs font-medium',
@@ -327,7 +327,7 @@ export default function UserDetailPage() {
               </div>
               {user.last_login && (
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-400">Last Login</span>
+                  <span className="text-gray-500 dark:text-slate-400">Last Login</span>
                   <span className="text-slate-300">
                     {formatDateTime(user.last_login)}
                   </span>
@@ -337,17 +337,17 @@ export default function UserDetailPage() {
           </div>
 
           {/* Role Management */}
-          <div className="rounded-xl border border-slate-700 bg-slate-800/50 p-6">
-            <h3 className="mb-4 text-lg font-semibold text-white">Role & Permissions</h3>
+          <div className="rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 p-6">
+            <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Role & Permissions</h3>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-slate-400">Current Role</span>
+                <span className="text-gray-500 dark:text-slate-400">Current Role</span>
                 <span
                   className={clsx(
                     'rounded-full px-2 py-0.5 text-xs font-medium capitalize',
                     user.role === 'admin'
                       ? 'bg-purple-500/10 text-purple-400'
-                      : 'bg-slate-500/10 text-slate-400'
+                      : 'bg-slate-500/10 text-gray-500 dark:text-slate-400'
                   )}
                 >
                   {user.role}

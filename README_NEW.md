@@ -1,4 +1,4 @@
-# 🛍️ ShopHub E-Commerce Platform
+# 🛍️ CommerceHub E-Commerce Platform
 
 A full-stack e-commerce platform built with **FastAPI** (Python) backend and **React TypeScript** frontend, featuring a comprehensive admin system for product management.
 
@@ -424,7 +424,7 @@ See `backend/.env.example` for all options.
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `VITE_API_URL` | Backend API URL | `http://localhost:8000/api/v1` |
-| `VITE_APP_NAME` | Application name | `ShopHub` |
+| `VITE_APP_NAME` | Application name | `CommerceHub` |
 
 See `frontend/.env.example` for all options.
 
@@ -508,4 +508,4 @@ For support, please open an issue in the repository or contact the development t
 
 ---
 
-Made with ❤️ by the ShopHub Team
+Made with ❤️ by the CommerceHub Team

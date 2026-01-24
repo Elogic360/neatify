@@ -1,4 +1,4 @@
-# ShopHub E-Commerce System - Complete Overview
+# CommerceHub E-Commerce System - Complete Overview
 
 ## 🎯 System Architecture
 
@@ -187,7 +187,7 @@ pnpm test
 ## 📊 Admin Credentials
 
 Default admin account (change after first login):
-- **Email**: admin@shophub.com
+- **Email**: admin@commercehub.com
 - **Password**: admin123
 
 ---

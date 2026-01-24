@@ -6,6 +6,9 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional, Union, Any
 import secrets
 import hashlib
+from functools import lru_cache
+import time
+from threading import Lock
 
 from jose import JWTError, jwt, ExpiredSignatureError
 import bcrypt  # Use bcrypt directly instead of passlib
@@ -289,6 +292,40 @@ def hash_token(token: str) -> str:
 
 
 # =============================================================================
+# USER CACHE FOR PERFORMANCE
+# =============================================================================
+
+_user_cache = {}
+_cache_lock = Lock()
+CACHE_TTL = 300  # 5 minutes TTL for user cache
+
+def _get_cached_user(email: str, db: Session) -> Optional[User]:
+    """Get user from cache or database with TTL."""
+    cache_key = f"user:{email}"
+    now = time.time()
+
+    with _cache_lock:
+        if cache_key in _user_cache:
+            cached_data, timestamp = _user_cache[cache_key]
+            if now - timestamp < CACHE_TTL:
+                # Merge the cached user object back into the current session
+                # to prevent DetachedInstanceError
+                return db.merge(cached_data)
+            else:
+                # Cache expired, remove it
+                del _user_cache[cache_key]
+
+    # Cache miss or expired, fetch from DB
+    user = db.query(User).filter(User.email == email).first()
+
+    if user:
+        with _cache_lock:
+            _user_cache[cache_key] = (user, now)
+
+    return user
+
+
+# =============================================================================
 # AUTHENTICATION DEPENDENCIES
 # =============================================================================
 
@@ -329,8 +366,8 @@ def get_current_user(
     except HTTPException:
         raise credentials_exception
     
-    # Get user from database
-    user = db.query(User).filter(User.email == email).first()
+    # Get user from database with caching
+    user = _get_cached_user(email, db)
     
     if user is None:
         raise credentials_exception
@@ -451,7 +488,7 @@ def get_current_admin_user(
     Raises:
         HTTPException: If user is not admin
     """
-    if current_user.role != Role.ADMIN.value:
+    if current_user.role not in [role.value for role in Role.get_admin_roles()]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin privileges required"

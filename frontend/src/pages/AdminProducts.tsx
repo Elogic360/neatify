@@ -168,9 +168,9 @@ const AdminProducts: React.FC = () => {
             aria-label="Filter by category"
           >
             <option value="">All Categories</option>
-            <option value="electronics">Electronics</option>
-            <option value="clothing">Clothing</option>
-            <option value="books">Books</option>
+            <option value="cleaning_agents">Cleaning Agents</option>
+            <option value="detergents">Detergents & Soaps</option>
+            <option value="tools">Cleaning Tools</option>
           </select>
           <select className="px-3 py-2 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500" aria-label="Filter by status">
             <option value="">All Status</option>
@@ -284,11 +284,10 @@ const AdminProducts: React.FC = () => {
                 <div className="flex space-x-1">
                   <button
                     onClick={() => handleToggleProductStatus(product.id, product.is_active)}
-                    className={`px-3 py-1 text-xs font-medium rounded ${
-                      product.is_active
+                    className={`px-3 py-1 text-xs font-medium rounded ${product.is_active
                         ? 'bg-red-100 text-red-800 hover:bg-red-200'
                         : 'bg-green-100 text-green-800 hover:bg-green-200'
-                    }`}
+                      }`}
                   >
                     {product.is_active ? 'Deactivate' : 'Activate'}
                   </button>

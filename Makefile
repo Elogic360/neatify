@@ -1,6 +1,6 @@
 # ============================================================================
 # MAKEFILE
-# ShopHub E-Commerce Platform
+# Neatify - Cleaning Supplies & Tools Platform
 # ============================================================================
 # Common development commands for the project
 # Usage: make <command>
@@ -17,7 +17,7 @@
 # HELP
 # ============================================================================
 help: ## Show this help message
-	@echo "ShopHub E-Commerce Platform - Development Commands"
+	@echo "Neatify - Cleaning Supplies & Tools Platform - Development Commands"
 	@echo ""
 	@echo "Usage: make <command>"
 	@echo ""
@@ -216,7 +216,7 @@ check-env: ## Verify environment setup
 # ============================================================================
 quickstart: setup-env install db-init db-upgrade admin ## Complete project setup
 	@echo ""
-	@echo "🎉 ShopHub setup complete!"
+	@echo "🎉 Neatify setup complete!"
 	@echo ""
 	@echo "Next steps:"
 	@echo "  1. Edit backend/.env and frontend/.env with your configuration"

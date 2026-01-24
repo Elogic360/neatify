@@ -1,9 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { BarChart, Package, Users, ShoppingCart, DollarSign, TrendingUp, Activity, AlertTriangle } from 'lucide-react';
+import {
+  BarChart,
+  Package,
+  Users,
+  ShoppingCart,
+  DollarSign,
+  TrendingUp,
+  Activity,
+  AlertTriangle
+} from 'lucide-react';
 import { useStore } from '@/app/store';
 import { adminDashboardAPI, getImageUrl } from '@/app/api';
 import StatCard from '@/components/admin/StatCard';
-
+/* =========================
+   TYPES (UNCHANGED)
+========================= */
 interface DashboardStats {
   total_users: number;
   total_products: number;
@@ -33,17 +44,17 @@ interface DashboardStats {
     stock: number;
   }>;
 }
-
+/* =========================
+   COMPONENT
+========================= */
 const AdminDashboard: React.FC = () => {
-  const { user, logout } = useStore();
+  const { user } = useStore();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
   useEffect(() => {
     fetchDashboardStats();
   }, []);
-
   const fetchDashboardStats = async () => {
     try {
       setLoading(true);
@@ -56,58 +67,62 @@ const AdminDashboard: React.FC = () => {
       setLoading(false);
     }
   };
-
-  const handleLogout = () => {
-    logout();
-  };
-
+  /* =========================
+     LOADING
+  ========================= */
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-t-4 border-orange-500 mb-4"></div>
-        <p className="text-gray-600 font-medium">Loading dashboard...</p>
+        <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-t-4 border-indigo-500 mb-4" />
+        <p className="text-slate-500 font-medium">Loading dashboard...</p>
       </div>
     );
   }
-
+  /* =========================
+     ERROR
+  ========================= */
   if (error) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="text-center bg-white rounded-2xl shadow-xl p-8 max-w-md">
-          <div className="bg-red-100 rounded-full p-4 inline-block mb-4">
-            <AlertTriangle className="h-12 w-12 text-red-600" />
+        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md border border-slate-200 text-center">
+          <div className="bg-red-100 rounded-full p-4 inline-flex mb-4">
+            <AlertTriangle className="h-10 w-10 text-red-600" />
           </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-2">Error loading dashboard</h3>
-          <p className="text-gray-600 mb-6">{error}</p>
+          <h3 className="text-xl font-bold text-slate-900 mb-2">
+            Failed to load dashboard
+          </h3>
+          <p className="text-slate-600 mb-6">{error}</p>
           <button
             onClick={fetchDashboardStats}
-            className="px-6 py-3 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-xl hover:from-orange-600 hover:to-red-700 transition shadow-lg font-semibold"
+            className="px-6 py-3 rounded-xl bg-gradient-to-r from-slate-800 to-slate-900 text-white font-semibold shadow-lg hover:from-black hover:to-slate-950 transition"
           >
-            Try Again
+            Retry
           </button>
         </div>
       </div>
     );
   }
-
+  /* =========================
+     MAIN UI
+  ========================= */
   return (
     <div className="space-y-8">
-      {/* Welcome Banner */}
-      <div className="bg-gradient-to-r from-orange-500 via-red-500 to-pink-600 rounded-2xl shadow-xl overflow-hidden">
-        <div className="px-8 py-8 relative">
+      {/* WELCOME BANNER */}
+      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-900 rounded-2xl shadow-xl overflow-hidden">
+        <div className="relative px-8 py-8">
           <div className="relative z-10">
-            <h1 className="text-3xl font-bold text-white mb-2">
+            <h1 className="text-3xl font-bold text-indigo-300 mb-2">
               Welcome back, {user?.username}! 👋
             </h1>
-            <p className="text-white/90 text-lg">
-              Here's what's happening with your store today
+            <p className="text-slate-300 text-lg">
+              Store performance overview for today
             </p>
           </div>
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32"></div>
-          <div className="absolute bottom-0 right-0 w-48 h-48 bg-white/10 rounded-full -mr-24 -mb-24"></div>
+          <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-400/10 rounded-full -mr-32 -mt-32" />
+          <div className="absolute bottom-0 right-0 w-48 h-48 bg-indigo-400/10 rounded-full -mr-24 -mb-24" />
         </div>
       </div>
-      {/* Stats Grid */}
+      {/* STATS */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           title="Total Revenue"
@@ -121,146 +136,122 @@ const AdminDashboard: React.FC = () => {
           value={stats?.total_orders?.toString() || '0'}
           icon={<ShoppingCart className="h-6 w-6" />}
           trend="All time"
-          trendUp={true}
+          trendUp
         />
         <StatCard
           title="Total Products"
           value={stats?.total_products?.toString() || '0'}
           icon={<Package className="h-6 w-6" />}
-          trend="In catalog"
-          trendUp={true}
+          trend="Catalog"
+          trendUp
         />
         <StatCard
           title="Total Users"
           value={stats?.total_users?.toString() || '0'}
           icon={<Users className="h-6 w-6" />}
           trend="Registered"
-          trendUp={true}
+          trendUp
         />
       </div>
-
-      {/* Quick Actions */}
-      <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+      {/* QUICK ACTIONS */}
+      <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-gray-900">Quick Actions</h2>
-          <BarChart className="h-6 w-6 text-gray-400" />
+          <h2 className="text-xl font-bold text-slate-900">Quick Actions</h2>
+          <BarChart className="h-6 w-6 text-slate-400" />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button className="group flex items-center justify-center px-6 py-4 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-xl hover:from-orange-600 hover:to-red-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-            <Package className="h-5 w-5 mr-3 group-hover:scale-110 transition-transform" />
-            <span className="font-semibold">Add Product</span>
+          <button className="group flex items-center justify-center px-6 py-4 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-800 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-1 transition">
+            <Package className="h-5 w-5 mr-3 group-hover:scale-110 transition" />
+            Add Product
           </button>
-          <button className="group flex items-center justify-center px-6 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-            <Users className="h-5 w-5 mr-3 group-hover:scale-110 transition-transform" />
-            <span className="font-semibold">Manage Users</span>
+          <button className="group flex items-center justify-center px-6 py-4 rounded-xl bg-gradient-to-r from-slate-700 to-slate-900 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-1 transition">
+            <Users className="h-5 w-5 mr-3 group-hover:scale-110 transition" />
+            Manage Users
           </button>
-          <button className="group flex items-center justify-center px-6 py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-            <ShoppingCart className="h-5 w-5 mr-3 group-hover:scale-110 transition-transform" />
-            <span className="font-semibold">View Orders</span>
+          <button className="group flex items-center justify-center px-6 py-4 rounded-xl bg-gradient-to-r from-violet-500 to-violet-700 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-1 transition">
+            <ShoppingCart className="h-5 w-5 mr-3 group-hover:scale-110 transition" />
+            View Orders
           </button>
         </div>
       </div>
-
-      {/* Recent Activity */}
+      {/* ACTIVITY */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Orders */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-gray-900">Recent Orders</h2>
-            <div className="bg-green-100 rounded-full p-2">
-              <Activity className="h-5 w-5 text-green-600" />
-            </div>
-          </div>
+        {/* RECENT ORDERS */}
+        <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6">
+          <h2 className="text-xl font-bold text-slate-900 mb-6">Recent Orders</h2>
           <div className="space-y-4">
-            {stats?.recent_orders?.slice(0, 5).map((order) => (
-              <div key={order.id} className="flex items-center space-x-4 p-3 rounded-xl hover:bg-gray-50 transition">
-                <div className="flex-shrink-0">
-                  <div className="bg-green-100 rounded-full p-2">
-                    <ShoppingCart className="h-5 w-5 text-green-600" />
-                  </div>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-gray-900">Order #{order.id}</p>
-                  <p className="text-sm text-gray-600">{order.customer_name}</p>
+            {stats?.recent_orders?.slice(0, 5).map(order => (
+              <div
+                key={order.id}
+                className="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition"
+              >
+                <div>
+                  <p className="text-sm font-semibold text-slate-900">
+                    Order #{order.id}
+                  </p>
+                  <p className="text-sm text-slate-500">{order.customer_name}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-bold text-gray-900">${order.total_amount}</p>
-                  <p className="text-xs text-gray-500">
+                  <p className="font-bold text-slate-900">
+                    ${order.total_amount}
+                  </p>
+                  <p className="text-xs text-slate-500">
                     {new Date(order.created_at).toLocaleDateString()}
                   </p>
                 </div>
               </div>
-            )) || (
-              <div className="text-center py-8">
-                <ShoppingCart className="mx-auto h-12 w-12 text-gray-300 mb-3" />
-                <p className="text-sm text-gray-500">No recent orders</p>
-              </div>
-            )}
+            ))}
           </div>
         </div>
-
-        {/* Low Stock Alert */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-gray-900">Low Stock Alert</h2>
-            <div className="bg-red-100 rounded-full p-2">
-              <AlertTriangle className="h-5 w-5 text-red-600" />
-            </div>
-          </div>
+        {/* LOW STOCK */}
+        <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6">
+          <h2 className="text-xl font-bold text-slate-900 mb-6">
+            Low Stock Alert
+          </h2>
           <div className="space-y-4">
-            {stats?.low_stock_products?.slice(0, 5).map((product) => (
-              <div key={product.id} className="flex items-center justify-between p-3 rounded-xl hover:bg-red-50 transition">
-                <div className="flex items-center space-x-3">
-                  <div className="bg-red-100 rounded-full p-2">
-                    <Package className="h-5 w-5 text-red-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-gray-900">{product.name}</p>
-                    <p className="text-xs text-gray-500">ID: {product.id}</p>
-                  </div>
+            {stats?.low_stock_products?.slice(0, 5).map(product => (
+              <div
+                key={product.id}
+                className="flex items-center justify-between p-3 rounded-xl hover:bg-red-50 transition"
+              >
+                <div>
+                  <p className="text-sm font-semibold text-slate-900">
+                    {product.name}
+                  </p>
+                  <p className="text-xs text-slate-500">ID: {product.id}</p>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm font-bold text-red-600">{product.stock} left</p>
-                  <p className="text-xs text-gray-500">Low stock</p>
-                </div>
+                <span className="font-bold text-red-700">
+                  {product.stock} left
+                </span>
               </div>
-            )) || (
-              <div className="text-center py-8">
-                <Package className="mx-auto h-12 w-12 text-gray-300 mb-3" />
-                <p className="text-sm text-gray-500">All products well stocked</p>
-              </div>
-            )}
+            ))}
           </div>
         </div>
       </div>
-
-      {/* Top Products */}
+      {/* TOP PRODUCTS */}
       {stats?.top_products && stats.top_products.length > 0 && (
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-gray-900">Top Selling Products</h2>
-            <TrendingUp className="h-6 w-6 text-gray-400" />
-          </div>
+        <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6">
+          <h2 className="text-xl font-bold text-slate-900 mb-6">
+            Top Selling Products
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {stats.top_products.slice(0, 6).map((product) => (
-              <div key={product.id} className="group flex items-center space-x-3 p-4 border border-gray-200 rounded-xl hover:border-orange-300 hover:shadow-lg transition-all">
-                <div className="flex-shrink-0">
-                  <img
-                    src={getImageUrl(product.primary_image) || '/placeholder-product.jpg'}
-                    alt={product.name}
-                    className="w-16 h-16 object-cover rounded-lg group-hover:scale-110 transition-transform"
-                  />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-gray-900 truncate group-hover:text-orange-600 transition">
+            {stats.top_products.slice(0, 6).map(product => (
+              <div
+                key={product.id}
+                className="group flex items-center space-x-4 p-4 border border-slate-200 rounded-xl hover:border-indigo-400 hover:shadow-lg transition"
+              >
+                <img
+                  src={getImageUrl(product.primary_image) || '/placeholder-product.jpg'}
+                  alt={product.name}
+                  className="w-16 h-16 rounded-lg object-cover group-hover:scale-110 transition"
+                />
+                <div>
+                  <p className="font-semibold text-slate-900 group-hover:text-indigo-600 transition">
                     {product.name}
                   </p>
-                  <div className="flex items-center mt-1">
-                    <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-                    <span className="text-sm font-medium text-green-600">
-                      Sold: {product.total_sold}
-                    </span>
-                  </div>
+                  <p className="text-sm text-indigo-600 font-medium">
+                    Sold: {product.total_sold}
+                  </p>
                 </div>
               </div>
             ))}
@@ -270,5 +261,4 @@ const AdminDashboard: React.FC = () => {
     </div>
   );
 };
-
 export default AdminDashboard;

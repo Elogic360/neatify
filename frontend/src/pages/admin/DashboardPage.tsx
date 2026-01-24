@@ -11,8 +11,9 @@ import {
   AlertTriangle,
   TrendingUp,
   ArrowRight,
-  Clock,
+  Clock
 } from 'lucide-react';
+import { useStore } from '@/app/store';
 import { useAdminStore } from '@/stores/adminStore';
 import { DashboardMetrics } from '@/components/admin/charts/MetricsCards';
 import { SalesChart } from '@/components/admin/charts/SalesChart';
@@ -20,8 +21,11 @@ import { CategoryChart } from '@/components/admin/charts/CategoryChart';
 import { formatCurrency, formatDateTime } from '@/services/adminService';
 
 export default function AdminDashboard() {
+  const { theme } = useStore();
   const { dashboard, fetchDashboardData } = useAdminStore();
   const { stats, salesData, categorySales, recentOrders, lowStockProducts, isLoading, error } = dashboard;
+
+  const isDark = theme === 'dark';
 
   useEffect(() => {
     fetchDashboardData();
@@ -36,18 +40,24 @@ export default function AdminDashboard() {
       delivered: 'bg-emerald-500/10 text-emerald-400',
       cancelled: 'bg-red-500/10 text-red-400',
     };
-    return colors[status] || 'bg-slate-500/10 text-slate-400';
+    return colors[status] || 'bg-slate-500/10 text-gray-500 dark:text-slate-400';
   };
 
   if (error) {
     return (
-      <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-6 text-center">
-        <AlertTriangle className="mx-auto h-12 w-12 text-red-400" />
-        <h3 className="mt-4 text-lg font-semibold text-white">Failed to load dashboard</h3>
-        <p className="mt-2 text-sm text-slate-400">{error}</p>
+      <div className={`rounded-xl border p-6 text-center ${isDark
+        ? 'border-red-500/30 bg-red-500/10'
+        : 'border-red-300 bg-red-50'
+        }`}>
+        <AlertTriangle className={`mx-auto h-12 w-12 ${isDark ? 'text-red-400' : 'text-red-500'
+          }`} />
+        <h3 className={`mt-4 text-lg font-semibold ${isDark ? 'text-gray-900 dark:text-white' : 'text-gray-900'
+          }`}>Failed to load dashboard</h3>
+        <p className={`mt-2 text-sm ${isDark ? 'text-gray-500 dark:text-slate-400' : 'text-gray-600'
+          }`}>{error}</p>
         <button
           onClick={() => fetchDashboardData()}
-          className="mt-4 rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white hover:bg-red-600"
+          className="mt-4 rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-gray-900 dark:text-white hover:bg-red-600"
         >
           Try Again
         </button>
@@ -56,7 +66,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className={`space-y-6 ${isDark ? 'bg-black text-gray-900 dark:text-white' : 'bg-white text-gray-900'}`}>
       {/* Metrics */}
       <DashboardMetrics
         totalRevenue={stats?.total_revenue || 0}
@@ -81,12 +91,19 @@ export default function AdminDashboard() {
       {/* Bottom row */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Recent Orders */}
-        <div className="rounded-xl border border-slate-700 bg-slate-800/50 p-6">
+        <div className={`rounded-xl border p-6 ${isDark
+          ? 'border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800/50'
+          : 'border-gray-200 bg-white'
+          }`}>
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-white">Recent Orders</h3>
+            <h3 className={`text-lg font-semibold ${isDark ? 'text-gray-900 dark:text-white' : 'text-gray-900'
+              }`}>Recent Orders</h3>
             <Link
               to="/admin/orders"
-              className="flex items-center gap-1 text-sm text-emerald-400 hover:text-emerald-300"
+              className={`flex items-center gap-1 text-sm ${isDark
+                ? 'text-emerald-400 hover:text-emerald-300'
+                : 'text-emerald-600 hover:text-emerald-700'
+                }`}
             >
               View all
               <ArrowRight className="h-4 w-4" />
@@ -105,29 +122,38 @@ export default function AdminDashboard() {
               ))}
             </div>
           ) : recentOrders.length === 0 ? (
-            <p className="py-8 text-center text-slate-400">No orders yet</p>
+            <p className={`py-8 text-center ${isDark ? 'text-gray-500 dark:text-slate-400' : 'text-gray-500'
+              }`}>No orders yet</p>
           ) : (
             <div className="space-y-4">
               {recentOrders.map((order) => (
                 <Link
                   key={order.id}
                   to={`/admin/orders/${order.id}`}
-                  className="group flex items-center justify-between rounded-lg p-3 transition hover:bg-slate-700/50"
+                  className={`group flex items-center justify-between rounded-lg p-3 transition ${isDark
+                    ? 'hover:bg-slate-700/50'
+                    : 'hover:bg-gray-50'
+                    }`}
                 >
                   <div className="flex items-center gap-4">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-700">
-                      <ShoppingCart className="h-5 w-5 text-slate-400" />
+                    <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${isDark ? 'bg-slate-700' : 'bg-gray-100'
+                      }`}>
+                      <ShoppingCart className={`h-5 w-5 ${isDark ? 'text-gray-500 dark:text-slate-400' : 'text-gray-500'
+                        }`} />
                     </div>
                     <div>
-                      <p className="font-medium text-white">Order #{order.id}</p>
-                      <div className="flex items-center gap-2 text-xs text-slate-400">
+                      <p className={`font-medium ${isDark ? 'text-gray-900 dark:text-white' : 'text-gray-900'
+                        }`}>Order #{order.id}</p>
+                      <div className={`flex items-center gap-2 text-xs ${isDark ? 'text-gray-500 dark:text-slate-400' : 'text-gray-500'
+                        }`}>
                         <Clock className="h-3 w-3" />
                         {formatDateTime(order.created_at)}
                       </div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-medium text-white">{formatCurrency(order.total_amount)}</p>
+                    <p className={`font-medium ${isDark ? 'text-gray-900 dark:text-white' : 'text-gray-900'
+                      }`}>{formatCurrency(order.total_amount)}</p>
                     <span
                       className={clsx(
                         'inline-block rounded-full px-2 py-0.5 text-xs font-medium',
@@ -144,19 +170,29 @@ export default function AdminDashboard() {
         </div>
 
         {/* Low Stock Alerts */}
-        <div className="rounded-xl border border-slate-700 bg-slate-800/50 p-6">
+        <div className={`rounded-xl border p-6 ${isDark
+          ? 'border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800/50'
+          : 'border-gray-200 bg-white'
+          }`}>
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <h3 className="text-lg font-semibold text-white">Low Stock Alerts</h3>
+              <h3 className={`text-lg font-semibold ${isDark ? 'text-gray-900 dark:text-white' : 'text-gray-900'
+                }`}>Low Stock Alerts</h3>
               {lowStockProducts.length > 0 && (
-                <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-400">
+                <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${isDark
+                  ? 'bg-amber-500/10 text-amber-400'
+                  : 'bg-amber-100 text-amber-800'
+                  }`}>
                   {lowStockProducts.length}
                 </span>
               )}
             </div>
             <Link
               to="/admin/inventory"
-              className="flex items-center gap-1 text-sm text-emerald-400 hover:text-emerald-300"
+              className={`flex items-center gap-1 text-sm ${isDark
+                ? 'text-emerald-400 hover:text-emerald-300'
+                : 'text-emerald-600 hover:text-emerald-700'
+                }`}
             >
               View inventory
               <ArrowRight className="h-4 w-4" />
@@ -168,10 +204,13 @@ export default function AdminDashboard() {
               {[1, 2, 3].map((i) => (
                 <div key={i} className="animate-pulse">
                   <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded bg-slate-700" />
+                    <div className={`h-12 w-12 rounded ${isDark ? 'bg-slate-700' : 'bg-gray-200'
+                      }`} />
                     <div className="flex-1">
-                      <div className="h-4 w-32 rounded bg-slate-700" />
-                      <div className="mt-1 h-3 w-20 rounded bg-slate-700" />
+                      <div className={`h-4 w-32 rounded ${isDark ? 'bg-slate-700' : 'bg-gray-200'
+                        }`} />
+                      <div className={`mt-1 h-3 w-20 rounded ${isDark ? 'bg-slate-700' : 'bg-gray-200'
+                        }`} />
                     </div>
                   </div>
                 </div>
@@ -179,8 +218,10 @@ export default function AdminDashboard() {
             </div>
           ) : lowStockProducts.length === 0 ? (
             <div className="py-8 text-center">
-              <Package className="mx-auto h-12 w-12 text-emerald-400" />
-              <p className="mt-2 text-slate-400">All products are well stocked</p>
+              <Package className={`mx-auto h-12 w-12 ${isDark ? 'text-emerald-400' : 'text-emerald-500'
+                }`} />
+              <p className={`mt-2 ${isDark ? 'text-gray-500 dark:text-slate-400' : 'text-gray-500'
+                }`}>All products are well stocked</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -188,7 +229,10 @@ export default function AdminDashboard() {
                 <Link
                   key={product.id}
                   to={`/admin/products/${product.id}`}
-                  className="group flex items-center gap-4 rounded-lg p-3 transition hover:bg-slate-700/50"
+                  className={`group flex items-center gap-4 rounded-lg p-3 transition ${isDark
+                    ? 'hover:bg-slate-700/50'
+                    : 'hover:bg-gray-50'
+                    }`}
                 >
                   {product.primary_image ? (
                     <img
@@ -197,24 +241,31 @@ export default function AdminDashboard() {
                       className="h-12 w-12 rounded-lg object-cover"
                     />
                   ) : (
-                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-slate-700">
-                      <Package className="h-6 w-6 text-slate-400" />
+                    <div className={`flex h-12 w-12 items-center justify-center rounded-lg ${isDark ? 'bg-slate-700' : 'bg-gray-100'
+                      }`}>
+                      <Package className={`h-6 w-6 ${isDark ? 'text-gray-500 dark:text-slate-400' : 'text-gray-500'
+                        }`} />
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="truncate font-medium text-white">{product.name}</p>
-                    <p className="text-xs text-slate-400">SKU: {product.sku}</p>
+                    <p className={`truncate font-medium ${isDark ? 'text-gray-900 dark:text-white' : 'text-gray-900'
+                      }`}>{product.name}</p>
+                    <p className={`text-xs ${isDark ? 'text-gray-500 dark:text-slate-400' : 'text-gray-500'
+                      }`}>SKU: {product.sku}</p>
                   </div>
                   <div className="text-right">
                     <p
                       className={clsx(
                         'text-lg font-bold',
-                        product.stock === 0 ? 'text-red-400' : 'text-amber-400'
+                        product.stock === 0
+                          ? (isDark ? 'text-red-400' : 'text-red-500')
+                          : (isDark ? 'text-amber-400' : 'text-amber-500')
                       )}
                     >
                       {product.stock}
                     </p>
-                    <p className="text-xs text-slate-500">in stock</p>
+                    <p className={`text-xs ${isDark ? 'text-slate-500' : 'text-gray-400'
+                      }`}>in stock</p>
                   </div>
                 </Link>
               ))}
@@ -281,14 +332,14 @@ function QuickActionCard({
   return (
     <Link
       to={to}
-      className="group flex items-center gap-4 rounded-xl border border-slate-700 bg-slate-800/50 p-4 transition hover:border-slate-600"
+      className="group flex items-center gap-4 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 p-4 transition hover:border-slate-600"
     >
       <div className={clsx('flex h-12 w-12 items-center justify-center rounded-xl transition', colorClasses[color])}>
         {icon}
       </div>
       <div>
-        <p className="font-medium text-white">{title}</p>
-        <p className="text-sm text-slate-400">{description}</p>
+        <p className="font-medium text-gray-900 dark:text-white">{title}</p>
+        <p className="text-sm text-gray-500 dark:text-slate-400">{description}</p>
       </div>
     </Link>
   );

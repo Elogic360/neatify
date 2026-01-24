@@ -36,6 +36,10 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         # Get client IP
         client_ip = self._get_client_ip(request)
         
+        # Determine rate limit based on route
+        is_admin_route = "/admin" in str(request.url.path)
+        limit = self.requests_per_minute * 5 if is_admin_route else self.requests_per_minute  # 5x higher for admin routes
+        
         # Clean old requests
         current_time = time.time()
         self.requests[client_ip] = [
@@ -44,7 +48,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         ]
         
         # Check rate limit
-        if len(self.requests[client_ip]) >= self.requests_per_minute:
+        if len(self.requests[client_ip]) >= limit:
             return JSONResponse(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                 content={
@@ -60,9 +64,9 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         response = await call_next(request)
         
         # Add rate limit headers
-        response.headers["X-RateLimit-Limit"] = str(self.requests_per_minute)
+        response.headers["X-RateLimit-Limit"] = str(limit)
         response.headers["X-RateLimit-Remaining"] = str(
-            self.requests_per_minute - len(self.requests[client_ip])
+            limit - len(self.requests[client_ip])
         )
         response.headers["X-RateLimit-Reset"] = str(
             int(current_time + self.window_seconds)

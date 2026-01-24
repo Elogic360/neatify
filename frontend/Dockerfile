@@ -1,6 +1,6 @@
 # ============================================================================
 # FRONTEND DOCKERFILE
-# ShopHub E-Commerce Platform - React Frontend (Vite)
+# Neatify - Cleaning Supplies & Tools Platform - React Frontend (Vite)
 # ============================================================================
 
 # ==========================================================================

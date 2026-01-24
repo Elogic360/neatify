@@ -146,7 +146,7 @@ export default function OrderListPage() {
       delivered: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
       cancelled: 'bg-red-500/10 text-red-400 border-red-500/30',
     };
-    return colors[status] || 'bg-slate-500/10 text-slate-400 border-slate-500/30';
+    return colors[status] || 'bg-slate-500/10 text-gray-500 dark:text-slate-400 border-slate-500/30';
   };
 
   const getPaymentStatusColor = (status: string) => {
@@ -154,9 +154,9 @@ export default function OrderListPage() {
       paid: 'text-emerald-400',
       pending: 'text-amber-400',
       failed: 'text-red-400',
-      refunded: 'text-slate-400',
+      refunded: 'text-gray-500 dark:text-slate-400',
     };
-    return colors[status] || 'text-slate-400';
+    return colors[status] || 'text-gray-500 dark:text-slate-400';
   };
 
   // Table columns
@@ -167,8 +167,8 @@ export default function OrderListPage() {
       sortable: true,
       render: (value, row) => (
         <div>
-          <p className="font-medium text-white">#{value}</p>
-          <p className="text-xs text-slate-400">{formatDateTime(row.created_at)}</p>
+          <p className="font-medium text-gray-900 dark:text-white">#{value}</p>
+          <p className="text-xs text-gray-500 dark:text-slate-400">{formatDateTime(row.created_at)}</p>
         </div>
       ),
     },
@@ -178,11 +178,11 @@ export default function OrderListPage() {
       render: (value, row) => (
         <div className="flex items-center gap-3">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-700">
-            <User className="h-4 w-4 text-slate-400" />
+            <User className="h-4 w-4 text-gray-500 dark:text-slate-400" />
           </div>
           <div>
-            <p className="font-medium text-white">{value || 'Guest'}</p>
-            <p className="text-xs text-slate-400">{row.user_email}</p>
+            <p className="font-medium text-gray-900 dark:text-white">{value || 'Guest'}</p>
+            <p className="text-xs text-gray-500 dark:text-slate-400">{row.user_email}</p>
           </div>
         </div>
       ),
@@ -192,7 +192,7 @@ export default function OrderListPage() {
       header: 'Items',
       align: 'center',
       render: (value) => (
-        <span className="rounded-full bg-slate-700 px-2 py-0.5 text-xs text-white">
+        <span className="rounded-full bg-slate-700 px-2 py-0.5 text-xs text-gray-900 dark:text-white">
           {value} items
         </span>
       ),
@@ -203,7 +203,7 @@ export default function OrderListPage() {
       sortable: true,
       align: 'right',
       render: (value) => (
-        <span className="font-medium text-white">{formatCurrency(value)}</span>
+        <span className="font-medium text-gray-900 dark:text-white">{formatCurrency(value)}</span>
       ),
     },
     {
@@ -253,8 +253,8 @@ export default function OrderListPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Orders</h1>
-          <p className="text-sm text-slate-400">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Orders</h1>
+          <p className="text-sm text-gray-500 dark:text-slate-400">
             Manage and track customer orders ({orders.total} orders)
           </p>
         </div>
@@ -267,7 +267,7 @@ export default function OrderListPage() {
       </div>
 
       {/* Status Tabs */}
-      <div className="flex flex-wrap gap-2 border-b border-slate-700 pb-4">
+      <div className="flex flex-wrap gap-2 border-b border-gray-200 dark:border-slate-700 pb-4">
         {ORDER_STATUSES.map((status) => {
           const Icon = status.icon;
           const isActive = activeStatus === status.value;
@@ -279,7 +279,7 @@ export default function OrderListPage() {
                 'flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition',
                 isActive
                   ? 'bg-emerald-500/10 text-emerald-400'
-                  : 'text-slate-400 hover:bg-slate-700 hover:text-white'
+                  : 'text-gray-500 dark:text-slate-400 hover:bg-slate-700 hover:text-gray-900 dark:text-white'
               )}
             >
               <Icon className="h-4 w-4" />

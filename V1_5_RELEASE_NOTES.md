@@ -1,8 +1,8 @@
-# ShopHub E-Commerce v1.5 Feature Expansion
+# CommerceHub E-Commerce v1.5 Feature Expansion
 
 ## Overview
 
-Version 1.5 brings significant feature enhancements to the ShopHub platform without incorporating AI features (reserved for v2.0). This upgrade adds customer engagement features, analytics, order management improvements, and real-time capabilities.
+Version 1.5 brings significant feature enhancements to the CommerceHub platform without incorporating AI features (reserved for v2.0). This upgrade adds customer engagement features, analytics, order management improvements, and real-time capabilities.
 
 ## New Features
 

@@ -4,7 +4,7 @@ Provides dashboard statistics, charts data, and quick overviews for admin panel
 """
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
-from sqlalchemy import func, desc
+from sqlalchemy import func, desc, case
 from typing import Optional
 from datetime import datetime, timedelta
 from decimal import Decimal
@@ -24,64 +24,150 @@ def get_dashboard_stats(
     current_admin: User = Depends(get_current_admin_user)
 ):
     """Get main dashboard statistics"""
-    # Total counts
+    # Calculate date boundaries
+    today = datetime.now().date()
+    today_start = datetime.combine(today, datetime.min.time())
+    month_start = today.replace(day=1)
+    month_start_dt = datetime.combine(month_start, datetime.min.time())
+    
+    # Get all stats in fewer queries
+    # Basic counts
     total_users = db.query(func.count(User.id)).scalar() or 0
     total_products = db.query(func.count(Product.id)).filter(Product.is_active == True).scalar() or 0
     total_orders = db.query(func.count(Order.id)).scalar() or 0
     
-    # Revenue calculation
-    total_revenue = db.query(func.sum(Order.total_amount)).filter(
-        Order.payment_status == "paid"
-    ).scalar() or Decimal("0")
+    # Revenue queries combined
+    revenue_stats = db.query(
+        func.coalesce(func.sum(Order.total_amount), 0).label('total_revenue'),
+        # Count orders created today
+        func.count(
+            case((Order.created_at >= today_start, Order.id), else_=None)
+        ).label('today_orders'),
+        # Sum revenue for today
+        func.coalesce(
+            func.sum(
+                case((Order.created_at >= today_start, Order.total_amount), else_=0)
+            ),
+            0
+        ).label('today_revenue'),
+        # Count orders for current month
+        func.count(
+            case((Order.created_at >= month_start_dt, Order.id), else_=None)
+        ).label('monthly_orders'),
+        # Sum revenue for current month
+        func.coalesce(
+            func.sum(
+                case((Order.created_at >= month_start_dt, Order.total_amount), else_=0)
+            ),
+            0
+        ).label('monthly_revenue')
+    ).filter(Order.payment_status == "paid").first()
     
-    # Today's stats
-    today = datetime.now().date()
-    today_start = datetime.combine(today, datetime.min.time())
+    total_revenue, today_orders, today_revenue, monthly_orders, monthly_revenue = revenue_stats
     
-    today_orders = db.query(func.count(Order.id)).filter(
-        Order.created_at >= today_start
-    ).scalar() or 0
-    
-    today_revenue = db.query(func.sum(Order.total_amount)).filter(
-        Order.created_at >= today_start,
-        Order.payment_status == "paid"
-    ).scalar() or Decimal("0")
-    
-    # This month's stats
-    month_start = today.replace(day=1)
-    month_start_dt = datetime.combine(month_start, datetime.min.time())
-    
-    monthly_orders = db.query(func.count(Order.id)).filter(
-        Order.created_at >= month_start_dt
-    ).scalar() or 0
-    
-    monthly_revenue = db.query(func.sum(Order.total_amount)).filter(
-        Order.created_at >= month_start_dt,
-        Order.payment_status == "paid"
-    ).scalar() or Decimal("0")
-    
-    # Pending orders
+    # Pending orders and low stock
     pending_orders = db.query(func.count(Order.id)).filter(
         Order.status.in_(["pending", "processing"])
     ).scalar() or 0
     
-    # Low stock products count
     low_stock_count = db.query(func.count(Product.id)).filter(
         Product.stock < 10,
         Product.is_active == True
     ).scalar() or 0
+    
+    # Calculate last month revenue for growth comparison
+    last_month_start = (month_start - timedelta(days=1)).replace(day=1)
+    last_month_end = month_start - timedelta(days=1)
+    
+    last_month_revenue = db.query(
+        func.coalesce(func.sum(Order.total_amount), 0)
+    ).filter(
+        Order.created_at >= last_month_start,
+        Order.created_at <= last_month_end,
+        Order.payment_status == "paid"
+    ).scalar() or 0
+    
+    revenue_growth = 0.0
+    if float(last_month_revenue) > 0:
+        revenue_growth = ((float(monthly_revenue) - float(last_month_revenue)) / float(last_month_revenue)) * 100
+    
+    # Status breakdown
+    status_breakdown = {}
+    status_counts = db.query(Order.status, func.count(Order.id)).group_by(Order.status).all()
+    for status, count in status_counts:
+        status_breakdown[status] = count
+    
+    # Top products
+    top_products = db.query(
+        Product.id,
+        Product.name,
+        Product.primary_image,
+        func.coalesce(func.sum(OrderItem.quantity), 0).label('total_sold')
+    ).join(OrderItem, OrderItem.product_id == Product.id, isouter=True
+    ).join(Order, Order.id == OrderItem.order_id, isouter=True
+    ).filter(Product.is_active == True
+    ).group_by(Product.id
+    ).order_by(desc('total_sold')
+    ).limit(6).all()
+    
+    # Recent orders
+    recent_orders = db.query(
+        Order.id,
+        User.full_name.label('customer_name'),
+        Order.total_amount,
+        Order.status,
+        Order.created_at
+    ).join(User, User.id == Order.user_id
+    ).order_by(desc(Order.created_at)
+    ).limit(5).all()
+    
+    # Low stock products
+    low_stock_products = db.query(
+        Product.id,
+        Product.name,
+        Product.stock
+    ).filter(
+        Product.stock < 10,
+        Product.is_active == True
+    ).order_by(Product.stock
+    ).limit(5).all()
     
     return {
         "total_users": total_users,
         "total_products": total_products,
         "total_orders": total_orders,
         "total_revenue": float(total_revenue),
-        "today_orders": today_orders,
-        "today_revenue": float(today_revenue),
-        "monthly_orders": monthly_orders,
         "monthly_revenue": float(monthly_revenue),
+        "last_month_revenue": float(last_month_revenue),
+        "revenue_growth": revenue_growth,
+        "monthly_orders": monthly_orders,
+        "status_breakdown": status_breakdown,
         "pending_orders": pending_orders,
-        "low_stock_count": low_stock_count
+        "low_stock_count": low_stock_count,
+        "top_products": [
+            {
+                "id": p.id,
+                "name": p.name,
+                "primary_image": p.primary_image,
+                "total_sold": int(p.total_sold)
+            } for p in top_products
+        ],
+        "recent_orders": [
+            {
+                "id": o.id,
+                "customer_name": o.customer_name,
+                "total_amount": float(o.total_amount),
+                "status": o.status,
+                "created_at": o.created_at.isoformat()
+            } for o in recent_orders
+        ],
+        "low_stock_products": [
+            {
+                "id": p.id,
+                "name": p.name,
+                "stock": p.stock
+            } for p in low_stock_products
+        ]
     }
 
 
@@ -195,39 +281,44 @@ def get_category_sales(
     try:
         from app.models.product import ProductCategoryAssociation
         
-        # Get all categories with their sales data
-        categories = db.query(Category).all()
-        result = []
+        # Single query to get all category sales data
+        category_sales = db.query(
+            Category.id,
+            Category.name,
+            func.count(OrderItem.id).label('order_count'),
+            func.coalesce(func.sum(OrderItem.quantity), 0).label('items_sold'),
+            func.coalesce(func.sum(OrderItem.quantity * OrderItem.price), 0).label('revenue')
+        ).outerjoin(
+            ProductCategoryAssociation,
+            ProductCategoryAssociation.category_id == Category.id
+        ).outerjoin(
+            Product,
+            Product.id == ProductCategoryAssociation.product_id
+        ).outerjoin(
+            OrderItem,
+            OrderItem.product_id == Product.id
+        ).outerjoin(
+            Order,
+            Order.id == OrderItem.order_id
+        ).filter(
+            Order.payment_status == "paid"
+        ).group_by(
+            Category.id,
+            Category.name
+        ).order_by(
+            desc('revenue')
+        ).all()
         
-        for cat in categories:
-            # Count orders and revenue for this category
-            sales_data = db.query(
-                func.count(OrderItem.id).label('order_count'),
-                func.coalesce(func.sum(OrderItem.quantity), 0).label('items_sold'),
-                func.coalesce(func.sum(OrderItem.quantity * OrderItem.price), 0).label('revenue')
-            ).join(
-                Product, Product.id == OrderItem.product_id
-            ).join(
-                ProductCategoryAssociation,
-                ProductCategoryAssociation.product_id == Product.id
-            ).join(
-                Order, Order.id == OrderItem.order_id
-            ).filter(
-                ProductCategoryAssociation.category_id == cat.id,
-                Order.payment_status == "paid"
-            ).first()
-            
-            result.append({
+        return [
+            {
                 "id": cat.id,
                 "name": cat.name,
-                "order_count": sales_data.order_count if sales_data else 0,
-                "items_sold": int(sales_data.items_sold) if sales_data and sales_data.items_sold else 0,
-                "revenue": float(sales_data.revenue) if sales_data and sales_data.revenue else 0
-            })
-        
-        # Sort by revenue descending
-        result.sort(key=lambda x: x['revenue'], reverse=True)
-        return result
+                "order_count": cat.order_count,
+                "items_sold": int(cat.items_sold),
+                "revenue": float(cat.revenue)
+            }
+            for cat in category_sales
+        ]
     except Exception as e:
         # Fallback: return categories without sales data
         categories = db.query(Category).all()

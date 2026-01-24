@@ -75,7 +75,7 @@ Then, still in the `backend` directory and with your virtual environment activat
 # db = SessionLocal()
 
 # admin = User(
-#     email="admin@shophub.com",
+#     email="admin@commercehub.com",
 #     username="admin",
 #     full_name="Admin User",
 #     hashed_password=get_password_hash("admin123"),
@@ -92,7 +92,7 @@ Then, still in the `backend` directory and with your virtual environment activat
 python create_admin.py
 ```
 
-This will create an admin user with email `admin@shophub.com` and password `admin123`.
+This will create an admin user with email `admin@commercehub.com` and password `admin123`.
 
 ### 3. Restart the Backend Server and Test Admin Login
 
@@ -102,7 +102,7 @@ Restart the server:
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-Go to [http://localhost:8000/docs](http://localhost:8000/docs), click on the 'Authorize' button (top right), and try logging in with the admin credentials (`admin@shophub.com`, `admin123`). This verifies that your authentication routes and user model are correctly interacting with the database.
+Go to [http://localhost:8000/docs](http://localhost:8000/docs), click on the 'Authorize' button (top right), and try logging in with the admin credentials (`admin@commercehub.com`, `admin123`). This verifies that your authentication routes and user model are correctly interacting with the database.
 
 ---
 

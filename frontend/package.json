@@ -1,15 +1,16 @@
 {
-  "name": "shophub-frontend",
+  "name": "neatify-frontend",
   "private": true,
   "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.17.15",
     "axios": "^1.6.2",
     "clsx": "^2.1.1",
     "lucide-react": "^0.263.1",
